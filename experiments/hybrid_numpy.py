@@ -365,8 +365,7 @@ def entrainer(args):
     resume = {"types": types, "seed": args.seed, "params": n_par,
               "val_min": min(vals), "val_min_step": historique[1:][int(np.argmin(vals))][0],
               "val_final": vals[-1], "train_final": trs[-1],
-              "kv_cache_octets_par_token": 2 * len([t for t in types if t == "smax"]) * cfg["n_layer"] * cfg["d_model"] * 4}
-    resume["kv_cache_octets_par_token"] = sum(2 * cfg["d_model"] * 4 for t in types if t == "smax")
+              "kv_cache_octets_par_token": sum(2 * cfg["d_model"] * 4 for t in types if t == "smax")}
     with open(os.path.join(args.out_dir, "resume.json"), "w", encoding="utf-8") as f:
         json.dump(resume, f, indent=1, ensure_ascii=False)
     print("RÉSUMÉ :", json.dumps(resume, ensure_ascii=False))

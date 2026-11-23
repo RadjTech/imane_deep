@@ -24,21 +24,24 @@ Identique pour les trois configurations — seul le type d'attention par couche 
 
 ### 4. Résultats
 
-| Configuration | val min | au pas | val @1800 | train @1800 | M@T=4096 (inférence) |
-|---|---|---|---|---|---|
-| `smax,smax` (baseline) | **2.1214** | ~700 | 3.1385 | 0.3046 | ≈ 6.3 Mo (croît) |
-| **`lin,smax` (C1)** | **2.1265** | 500 | 2.5496* | 1.05* | ≈ 3.2 Mo (croît ×0.5) |
-| `lin,lin` (baseline) | 2.2349 | ~500 | 2.8330 | 0.9393 | **≈ 147 Ko constant** |
+| Configuration | val min | au pas | val @1800 | train @1800 | M@T=96 (inférence) | M@T=4096 |
+|---|---|---|---|---|---|---|
+| `smax,smax` (baseline) | 2.1235 | 700 | 3.1385 | 0.3046 | ≈ 147 Ko | ≈ 6.3 Mo (croît) |
+| **`lin,smax` (C1)** | **2.1112** | 700 | **2.4596** | 0.7635 | ≈ 147 Ko | ≈ 3.2 Mo (croît ÷2) |
+| `lin,lin` (baseline) | 2.2349 | 500 | 2.8330 | 0.9393 | ≈ 147 Ko | **≈ 147 Ko constant** |
 
-*chiffres C1 à compléter au fill depuis `results/c1_hybride_lin_smax/resume.json`*
+Sources : `results/c1_synthese.json`, CSV bruts dans `results/`. Garde-fou : écart gradients max 6.86e-05. Durée C1 : ~9 min sur 2 CPU.
 
 ### 5. Analyse
-- H1 **confirmée** (ou infirmée — voir chiffres finaux ci-dessus) : [ANALYSE]
-- [Lecture:mem]
+- **H1 confirmée — au-delà du critère.** Critère annoncé : val_min ≤ 2.175. Obtenu : **2.1112**. L'hybride récouvre **plus que 100 % de l'écart** (0.1237 nat récupérés sur un écart total de 0.1114) : il dépasse même le tout-softmax de 0.0123 nat.
+- **Mécanisme proposé** : la couche linéaire en bas *compresse* le contexte dans un état borné — ce qui limite la mémorisation (train@1800 : 0.76 vs 0.30 pour le softmax pur) et régularise les représentations ; la couche softmax en haut fait le routage précis sur ces représentations déjà agrégées. Résultat : val finale @1800 de **2.4596 contre 3.1385** au softmax pur — l'hybride généralise nettement mieux au même budget d'entraînement.
+- **Coût mémoire** : à T=96 toutes les configurations tiennent dans ≈ 147 Ko ; la différence se joue dans la *croissance* : ÷2 à T=4096 pour l'hybride (une seule couche à KV-cache), constant pour le tout-linéaire. Le vrai verdict sera V_gen (C2).
+- **Honnêteté (H0)** : tout ceci repose sur **1 seed**. L'écart hybride→softmax (0.0123 nat) est *sous* le seuil de bruit H0 estimé (0.03) → statut « indication » jusqu'aux 3 seeds de C2. En revanche le rattrapage du tout-linéaire (0.12 nat) est bien au-dessus du bruit : **H1 robuste à cet égard**.
 
-### 6. Prochaines étapes
-1. **C2** : profiler l'inférence batch-1 réelle (V_gen, mémoire) des 3 configurations à T ∈ {96, 1024, 4096} + variance inter-seeds (H0, 3 seeds × 3 config).
-2. **C3** : delta rule en forme récurrente (H2) — l'état qui remplace au lieu d'additionner, pour tenter de récupérer l'écart restant du tout-linéaire.
+### 6. Prochaines étapes / Décision
+**POURSUIVRE.** Deux suites parallèles :
+1. **C2 — consolidation + profilage** : 3 seeds × 3 configurations (H0 : quantifier le bruit réel), puis profiler l'inférence batch-1 réelle (V_gen, mémoire) à T ∈ {96, 1024, 4096}. Si l'écart hybride>softmax survit à 3 seeds → c'est un résultat publiable à cette échelle contrôlée.
+2. **C3 — delta rule** (H2) : faire *remplacer* l'état au lieu d'additionner, pour pousser le tout-linéaire vers la val de l'hybride avec mémoire constante.
 
 ---
-*Fin du cycle C1.*
+*Fin du cycle C1 — traçabilité : commits `C1:`, CI garde-fous active.*

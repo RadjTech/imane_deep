@@ -1,0 +1,20 @@
+{
+ "smax,smax": {
+  "val_min": 2.1235,
+  "val_min_step": 700,
+  "val_1800": 3.1385,
+  "train_1800": 0.3046
+ },
+ "lin,lin": {
+  "val_min": 2.2349,
+  "val_min_step": 500,
+  "val_1800": 2.833,
+  "train_1800": 0.9393
+ },
+ "lin,smax": {
+  "val_min": 2.1112,
+  "val_min_step": 700,
+  "val_1800": 2.4596,
+  "train_1800": 0.7635
+ }
+}

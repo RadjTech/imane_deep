@@ -34,8 +34,8 @@
 
 | Configuration | Q (val min) | M@T=96 | M@T=4096 |
 |---|---|---|---|
-| `smax,smax` | **2.1214** | ≈ 147 Ko | ≈ 6.3 Mo (croît) |
-| `lin,smax` (C1) | **2.1265** | ≈ 110 Ko | ≈ 3.2 Mo (croît ×0.5) |
-| `lin,lin` | 2.2349 | **≈ 147 Ko constant** | **≈ 147 Ko constant** |
+| `smax,smax` | 2.1235 | ≈ 147 Ko | ≈ 6.3 Mo (croît) |
+| `lin,smax` (C1) | **2.1112** | ≈ 147 Ko | ≈ 3.2 Mo (croît ÷2) |
+| `lin,lin` | 2.2349 | ≈ 147 Ko | **≈ 147 Ko constant** |
 
 *Note honnête : V_train NumPy n'est pas une métrique concept (les outer-products `lin` ne sont pas des matmuls BLAS). V_gen batch-1 est la mesure qui compte — elle sera produite par C2 avec le profiler d'inférence.*
