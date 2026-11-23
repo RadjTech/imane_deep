@@ -1,0 +1,26 @@
+name: garde-fous-recherche
+on: [push, workflow_dispatch]
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install numpy
+      - name: Garde-fou gradients (protocole étape 4)
+        run: python experiments/hybrid_numpy.py --check-grads
+      - name: Smoke train tout-softmax (60 pas)
+        run: python experiments/hybrid_numpy.py --train --types smax,smax --max-steps 60 --out-dir results/ci_smax
+      - name: Smoke train tout-linéaire (60 pas)
+        run: python experiments/hybrid_numpy.py --train --types lin,lin --max-steps 60 --out-dir results/ci_lin
+      - name: Smoke train hybride lin,smax (60 pas)
+        run: python experiments/hybrid_numpy.py --train --types lin,smax --max-steps 60 --out-dir results/ci_hybride
+      - name: Publication des artefacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-smoke
+          path: results/ci_*/

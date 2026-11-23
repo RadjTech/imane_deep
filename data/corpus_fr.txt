@@ -1,0 +1,66 @@
+Un modèle de langage est un programme qui apprend à prédire le mot suivant dans une phrase. À force de lire des millions de textes, il finit par comprendre la grammaire, le sens des mots, et même un peu de raisonnement. Comprendre en profondeur, c'est construire de ses propres mains.
+
+Les réseaux de neurones sont nés d'une idée simple : imiter, très grossièrement, le cerveau. Un neurone artificiel reçoit des nombres, les multiplie par des poids, additionne le tout, et applique une fonction non linéaire. Rien de plus. Mais quand on connecte des millions de ces neurones en couches, des capacités étonnantes apparaissent.
+
+En 1950, Alan Turing se demandait si les machines pouvaient penser. En 1957, Frank Rosenblatt invente le perceptron. En 1986, la rétropropagation rend l'entraînement des réseaux profonds possible. En 2017, huit chercheurs de Google publient un article devenu célèbre : Attention Is All You Need. En 2018, les modèles BERT et GPT arrivent. En 2020, GPT-3 montre qu'un modèle géant écrit presque comme un humain. En 2022, ChatGPT ouvre cette technologie au grand public. En 2023 et 2024, les modèles multimodaux comprennent les images et la voix. L'histoire continue de s'écrire.
+
+— Qu'est-ce qu'un neurone artificiel ?
+— C'est une petite unité de calcul. Il reçoit des nombres, les multiplie par des poids, fait la somme, puis applique une fonction d'activation.
+— Et un réseau de neurones ?
+— C'est des milliers de ces unités organisées en couches. La première couche voit les données brutes, les suivantes construisent des représentations de plus en plus abstraites.
+— Comment apprend-il ?
+— On lui montre des exemples, on mesure son erreur, puis on ajuste chaque poids dans la direction qui réduit cette erreur. C'est la descente de gradient.
+
+La descente de gradient est une marche dans le brouillard. On se tient sur une colline, on sent la pente sous nos pieds, et on fait un petit pas vers le bas. On recommence des millions de fois. La pente, c'est le gradient. Le pas, c'est le taux d'apprentissage. Si le pas est trop grand, on tombe. Si le pas est trop petit, on n'arrive jamais.
+
+L'attention est le cœur des modèles modernes. Chaque mot pose une question, appelée requête. Chaque mot propose aussi une étiquette, appelée clé, et un contenu, appelé valeur. Un mot regarde tous les mots précédents, compare sa requête à leurs clés, et récupère une moyenne pondérée de leurs valeurs. Si la requête ressemble beaucoup à une clé, le poids sera grand, et le mot héritera beaucoup de son contenu. C'est une recherche floue dans une bibliothèque vivante.
+
+— Pourquoi l'attention est-elle si puissante ?
+— Parce qu'elle relie directement deux mots très éloignés, sans passer par tous les mots intermédiaires. Dans une phrase longue, un pronom peut retrouver le nom auquel il se rapporte, même s'ils sont séparés par vingt mots.
+— Et le modèle apprend-il tout cela tout seul ?
+— Oui. Personne ne lui explique la grammaire. Il découvre les structures en essayant de prédire le mot suivant, encore et encore.
+
+À Cotonou, le soleil se lève tôt sur le marché Dantokpa. Les vendeuses installent leurs étals avant la première lumière. Les zémidjans traversent le pont, le vent frais du lac Nakoué sur le visage. Une femme achète trois mangues et deux pantalons. Le marcheur demande le prix, la vendeuse répond en fon, puis en français. La ville s'éveille, bruyante et joyeuse.
+
+Le renard du marché. Il était une fois un renard malin qui vivait près d'un grand marché d'Afrique de l'Ouest. Chaque matin, il observait les commerçants. Il remarqua que la vendeuse de tissus savait toujours quel motif plairait à chaque cliente. Le renard comprit qu'elle avait appris, année après année, à prédire les désirs des gens à partir de leurs regards et de leurs mots. Le renard se dit : voilà un modèle de langage en pagne. Il prédit le mot suivant à partir de tout ce qui précède. La morale de cette fable : celui qui prédit bien finit par comprendre.
+
+Pour entraîner un modèle, il faut trois choses : des données, du calcul, et de la patience. Les données doivent être nombreuses et propres. Le calcul transforme les nombres en connaissance. La patience, elle, s'apprend sur le long terme.
+
+Le train de six heures part à six heures et quart de la gare centrale. Il arrive à huit heures cinquante à la gare du nord. Un voyageur a acheté deux billets pour cent dix francs chacun et un journal pour deux cent cinquante francs. Le wagon numéro sept compte quarante places assises. La machine roule à cent vingt kilomètres par heure pendant trois heures, puis ralentit à quatre-vingts kilomètres par heure.
+
+La lumière voyage très vite. Elle parcourt trois cent mille kilomètres en une seconde. Le Soleil se trouve à cent cinquante millions de kilomètres de la Terre, donc sa lumière met environ huit minutes pour nous atteindre. Regarder le Soleil, c'est voir le passé. Les étoiles que nous voyons la nuit sont parfois des images vieilles de mille années. Le ciel est une bibliothèque d'archives lumineuses.
+
+La rétropropagation est une application de la règle de dérivation en chaîne. L'erreur sort du modèle par la fin, remonte couche par couche, et chaque couche reçoit la part d'erreur qui la concerne. Chaque poids apprend sa propre responsabilité dans l'erreur totale. C'est un grand tribunal où chaque neurone est jugé à la mesure de sa contribution.
+
+— Qu'est-ce qu'un token ?
+— Un token est un petit morceau de texte : parfois un mot entier, souvent un fragment de mot. Le modèle ne voit jamais les lettres directement, seulement des numéros. Chaque numéro désigne un token dans un grand dictionnaire appelé vocabulaire.
+— Pourquoi découper les mots ?
+— Parce qu'un vocabulaire fini ne peut pas contenir tous les mots du monde. Les mots nouveaux apparaissent chaque jour. En découpant en fragments récurrents, on peut écrire n'importe quel texte avec une liste finie de morceaux.
+
+L'entraînement d'un grand modèle ressemble à l'éducation d'un enfant. D'abord il écoute tout et n'importe quoi, et il répète des mots sans comprendre. Puis il apprend les règles, les exceptions, les nuances. Enfin un professeur l'aide à se corriger : c'est le réglage fin. On lui montre de bons exemples de réponses, et il apprend à être utile, honnête et prudent.
+
+Une bonne question vaut mille réponses médiocres. Le chercheur pose des questions que personne n'a posées. Le chercheur mesure, compare, doute. Un bon résultat doit pouvoir être répété par un autre chercheur dans un autre laboratoire. La science avance une petite expérience à la fois.
+
+Le professeur demanda à ses étudiants : quel est le plus grand obstacle à la connaissance ? Le premier dit : le manque de données. Le deuxième dit : le manque de calcul. Le troisième dit : le manque d'idées. Le professeur sourit et répond : le plus grand obstacle est de croire qu'on a déjà compris. Comprendre en profondeur, c'est construire de ses propres mains.
+
+Les lois d'échelle sont parmi les découvertes les plus importantes de ces dernières années. Quand on multiplie par dix la taille du modèle, la quantité de données et le calcul, la perte diminue de façon régulière et prévisible. Cette régularité a convaincu les laboratoires d'investir des milliards. Mais les échelles ont des limites : les données de qualité s'épuisent, et le coût explose.
+
+La mémoire est le talon d'Achille des modèles actuels. Un modèle de langage oublie tout ce qui n'est pas dans sa fenêtre de contexte. On lui attache parfois des notes externes, des bases de données, des souvenirs auxiliaires. Mais la question reste ouverte : comment donner à une machine la mémoire stable et organisée d'un esprit ?
+
+Le raisonnement est un autre front. Demandez à un modèle de compter les lettres d'un mot, il se trompe souvent. Demandez-lui une chaîne de pensée, en lui demandant d'écrire chaque étape, et il réussit beaucoup mieux. Écrire ses étapes, c'est donner au modèle plus de calcul au moment de la réponse. Certains chercheurs pensent que le futur des modèles intelligents se jouera au moment de la réponse, pas seulement pendant l'entraînement.
+
+Petite conversation au bord du lac. Un enfant demande : Papa, comment la machine sait-elle ce que je vais écrire ? Le père réfléchit et répond : Elle a lu beaucoup de livres. Quand tu commences une phrase, elle devine la suite parce qu'elle a vu des millions de phrases semblables. L'enfant demande : Et si personne n'a jamais écrit cette phrase ? Le père sourit : Alors elle invente, et parfois elle invente bien.
+
+La perplexité mesure la confusion d'un modèle. Une perplexité de un serait parfaite : le modèle prédirait toujours le bon mot. Une perplexité de mille signifierait une hésitation parmi mille possibilités. Les chercheurs surveillent cette mesure sur des textes jamais vus pendant l'entraînement, car réussir sur les textes connus ne prouve rien.
+
+Le quantificateur universel, le quantificateur existentiel, la négation et l'implication forment la base de la logique. Si toutes les roses fleurissent, et si ce jardin contient des roses, alors ce jardin fleurit au printemps. La machine apprend ces formes à partir d'exemples, mais la logique stricte reste difficile pour un modèle statistique. Le pont entre les statistiques et la déduction est encore en construction.
+
+Le glyphe tombe en ruine près du vieux fleuve. Trois voyageurs traversent la savane pendant la saison sèche. Le premier porte du mil, le deuxième porte des calebasses, le troisième ne porte rien mais connaît le chemin. À la tombée du jour, le vent du désert lève un voile de poussière fine. Les villages lointains allument leurs feux, un point orange dans la nuit immense. Le troisième voyageur dit : celui qui connaît le chemin porte le bien le plus précieux.
+
+Voici une liste de courses : six tomates, un sac de riz de cinq kilogrammes, deux litres d'huile, une boîte de café, trois cahiers, dix stylos, un linge bleu. Le total s'élève à sept mille francs. La vendeuse ajoute un cadeau : deux petites savonettes. La cliente remercie et promet de revenir samedi prochain.
+
+Qu'est-ce que l'intelligence ? Un oiseau vole sans connaître les équations de l'aérodynamique. Un enfant parle sa langue maternelle sans connaître une seule règle de grammaire. Peut-être que l'intelligence est une forme de prédiction devenue si bonne qu'elle ressemble à de la compréhension. Peut-être que la compréhension est exactement cela. La question reste ouverte, et elle vaut la peine qu'on la travaille encore longtemps.
+
+Les modèles de langage ont des forces et des faiblesses. Ils écrivent avec aisance, traduisent raisonnablement, expliquent avec patience. Mais ils inventent parfois des faits avec assurance, ils oublient ce qu'on leur a dit trop tôt dans la conversation, ils comptent mal les lettres, et ils ne savent pas vraiment ce qu'ils ne savent pas. Ces faiblesses sont des portes : derrière chacune, un problème de recherche attend son chercheur.
+
+Le futur appartient à ceux qui comprendront ces machines de l'intérieur. Pas seulement ceux qui les utiliseront, mais ceux qui sauront les construire, les mesurer, les critiquer et les dépasser. Comprendre en profondeur, c'est construire de ses propres mains.
