@@ -433,7 +433,11 @@ def prendre_batch(data, B, T, rng):
 
 def verifier_gradients(args):
     ok_global = True
-    for types_test in (["lin", "smax"], ["dlind", "dlind"]):
+    # C5 : extension aux 4 couches (la profondeur ne crée pas de nouveau code de gradient,
+    # mais le garde-fou doit prouver la composition : rstd(2L), récursion des blocs, γ × 8)
+    for types_test in (["lin", "smax"], ["dlind", "dlind"],
+                       ["dlind", "dlind", "dlind", "dlind"],
+                       ["smax", "smax", "smax", "smax"]):
         print(f"[GARDE-FOU] vérification des gradients (float64, types={types_test})...")
         texte, ids, _, itos = charger_donnees(args.data)
         ids = ids[:300]

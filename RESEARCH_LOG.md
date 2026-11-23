@@ -228,3 +228,30 @@ Le modèle `dlind` (C3) peut-il être entraîné **avec** ses poids de matmul co
 ### 6. Décision
 
 **C4 ✅ terminé — H3 confirmée (3/3 seeds, les deux critères secondaires inclus).** La stack CPU-first complète est validée pièce par pièce : delta rule (C3) + ternarité dans l'entraînement (C4). Décision : **POURSUIVRE → C5 (profondeur)** — la delta rule et la ternarité survivent-elles à 4 couches ? (question ouverte depuis C2 : « la carte des ratios à 4 couches » ; l'ablation de profondeur teste si les gains C3/C4 tiennent à l'échelle du modèle, avec les baselines `smax`×4 correspondantes).
+
+---
+
+## Cycle C5 — Profondeur : les gains survivent-ils à 4 couches ?
+
+**Date** : 2026-11-23 · **Statut** : 🔎 en cours
+
+### 1. Question
+À profondeur doublée (4 couches, ≈ 464 K params, largeur inchangée), (1) la delta rule garde-t-elle l'avantage sur le softmax (H5) ? (2) la contrainte ternaire reste-t-elle quasi gratuite (H6) ? (3) l'effet régulariseur de l'état persiste-t-il (H4c) ?
+
+### 2. Hypothèses annoncées avant l'expérience
+- **H5** : mean(val_min)(`dlind`×4) ≤ mean(val_min)(`smax`×4) sur 3 seeds → confirmée ; écart < 2×std_max(C5) → « confirmée mais non distinguable du bruit » ; sinon → infirmée.
+- **H6** : mean(val_min)(`dlind`×4 ternaire) − mean(val_min)(`dlind`×4 float) ≤ **0.05 nat** → confirmée.
+- **H4c** : mean(val@1200)(`dlind`×4 float) ≤ mean(val@1200)(`smax`×4) − **0.2 nat** → confirmée.
+
+### 3. Protocole (commité avant l'expérience)
+- **Aucune modification du modèle** (le code supporte N couches) — le garde-fou gradient est **étendu à 4 couches** pour prouver la composition : FD `dlind`×4 = **3.53e-05**, `smax`×4 = **2.19e-05** ✔ (2 couches inchangées : 6.86e-05 / 4.27e-05). Garde-fou ternaire inchangé ✔.
+- **3 configurations** × 3 seeds {1337, 2024, 777} : `dlind,dlind,dlind,dlind` ; `smax,smax,smax,smax` ; la même + `--ternary`. **Budget identique pour toutes : 1 200 pas** (cosinus complet, warmup 100, lr 1e-3, B=16, T=96, d=96, H=4, corpus inchangé) — **comparaisons INTERNES au cycle uniquement** (les baselines C3/C4 sont à 1 800 pas, non comparables directement, consigné).
+- Params attendus : ≈ 464 K (4 × 111,844 par couche + 16,800 emb/ln ; +4 γ par couche dlind).
+- Profilage V_gen batch-1 des checkpoints s1337 (`dlind`×4 vs `smax`×4) après les runs.
+- Analyse pré-enregistrée : `scripts/analyse_c5.py` ; exécution : `scripts/run_c5.sh`.
+
+### 4. Résultats — à remplir à la fin des runs
+
+### 5. Analyse — à remplir
+
+### 6. Décision — à remplir

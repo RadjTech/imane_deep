@@ -38,3 +38,17 @@
 - **Énoncé** : au régime sur-appris (1 800 pas, val_min depuis longtemps dépassé), la val finale de l'hybride est **meilleure** que celle du tout-softmax, parce que la couche à état borne la capacité de mémorisation.
 - **Critère** : val@1800(lin,smax) < val@1800(smax,smax) sur ≥ 3 seeds, écart moyen ≥ 0.2 nat.
 - **Statut** : ✅ **confirmée à 3 seeds (C2)** — val@1800 : hybride {2.4596, 2.5857, 2.6091} (moy. 2.5515) vs softmax {3.1385, 3.1218, 3.0822} (moy. 3.1142) ; écart moyen **0.56 nat**, 3/3 victoires. **Ré-évaluée en C3 : renforcée** — la delta rule (état qui remplace) sur-apprend encore moins : +0.13 nat de val_min à val@1800, contre +0.54 (lin) et +0.97 (smax).
+
+## H5 — La supériorité de la delta rule survit à la profondeur (C5)
+- **Énoncé** : à 4 couches (≈ 464 K params, largeur inchangée d=96) et budget d'entraînement identique, la configuration tout-delta-rule garde l'avantage sur le tout-softmax observé à 2 couches (C3 : 1.8976 vs 2.1448).
+- **Critère (annoncé avant l'expérience)** : mean(val_min)(`dlind`×4) ≤ mean(val_min)(`smax`×4) sur 3 seeds → confirmée ; si l'écart < 2×std_max(C5) → « confirmée mais non distinguable du bruit » ; sinon → infirmée.
+- **Périmètre budget** : les comparaisons C5 sont INTERNES au cycle (1 200 pas, tous configs identiques) — pas de comparaison directe aux baselines C3/C4 (1 800 pas), consigné.
+
+## H6 — La ternarité reste quasi gratuite à la profondeur (C5)
+- **Énoncé** : le surcoût de la contrainte {-1, 0, +1} (C4 : +0.0178 nat à 2 couches) ne s'amplifie pas avec la profondeur.
+- **Critère** : mean(val_min)(`dlind`×4 ternaire) − mean(val_min)(`dlind`×4 float) ≤ **0.05 nat** → confirmée ; sinon → coût notable à depth.
+
+## H4c — Le régulariseur survit à la profondeur (C5)
+- **Énoncé** : l'effet H4/H4b (l'état borne la mémorisation) persiste quand la capacité double.
+- **Critère** : mean(val@1200)(`dlind`×4 float) ≤ mean(val@1200)(`smax`×4) − **0.2 nat** → confirmée ; sinon → infirmée.
+- **Statuts** : à tester (C5, seeds {1337, 2024, 777}, protocole commité avant les runs).
