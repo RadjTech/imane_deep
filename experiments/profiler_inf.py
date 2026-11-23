@@ -82,8 +82,8 @@ class GenerationIncrementale:
                 y = (num / den[:, None]).reshape(1, D)
                 if typ == "dlind":
                     b = 1.0 / (1.0 + np.exp(-self.P[f"b{l}.gamma"].astype(np.float32)))  # β = sigmoid(γ)
-                    e = v - np.einsum("hij,hi->hj", self.S[l], k)
-                    self.S[l] += b[:, None, None] * k[:, :, None] * e[:, None, :]
+                    e = v - np.einsum("hij,hi->hj", self.S[l], K)              # trace avec k̂ normalisé
+                    self.S[l] += b[:, None, None] * K[:, :, None] * e[:, None, :]
                 else:
                     self.S[l] += np.einsum("hi,hj->hij", K, v)
                 self.Z[l] += K
