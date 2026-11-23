@@ -116,7 +116,7 @@ Garde-fou profileur : équivalence incrémental↔parallèle ≤ 3,7e-05 sur les
 
 ## Cycle C3 — Delta rule : l'état qui remplace au lieu d'additionner
 
-**Date** : 2026-11-23 · **Statut** : 🔎 en cours
+**Date** : 2026-11-23 · **Statut** : ✅ terminé — H2 + H4b confirmées · Décision : POURSUIVRE → C4 (ternaire, H3)
 
 ### 1. Question
 La mise à jour delta `S += β·k⊗(v − S·k)` — qui écrase la trace similaire au lieu d'additionner — récupère-t-elle la qualité manquante du tout-linéaire (résidu de 0.103 nat mesuré en C2) tout en gardant l'état constant et l'effet régulariseur (H4) ?
@@ -133,8 +133,39 @@ La mise à jour delta `S += β·k⊗(v − S·k)` — qui écrase la trace simil
 - Analyse pré-enregistrée : `scripts/analyse_c3.py`.
 - Exécution : `scripts/run_c3.sh`.
 
-### 4. Résultats — à remplir à la fin des runs
+### 4. Résultats
 
-### 5. Analyse — à remplir
+**Garde-fou** : gradients `dlind,dlind` validés avant tout run — erreur FD **4.27e-05** (lin+smax : 6.86e-05). Trois bugs trouvés et corrigés par le garde-fou avant l'expérience : clés non normalisées (divergence exponentielle, gradients ~1e10), facteur β appliqué en double dans les adjoints, ordre des adjoints (le pass-through `q⊗dnum` polluait les autres termes). Le profileur d'inférence a eu son propre bug (mise à jour delta avec le k brut au lieu du k̂ normalisé, équivalence 0.589 ✘ → corrigé, 7.15e-07 ✔).
 
-### 6. Décision — à remplir
+**(a) Statistique — 3 seeds** (`results/c3/analyse.json`) :
+
+| Configuration | s1337 | s2024 | s777 | moyenne | écart type |
+|---|---|---|---|---|---|
+| `dlind,dlind` | **1.8931** | **1.8873** | **1.9124** | **1.8976** | **0.0131** |
+| `lin,lin` (C2) | 2.2349 | 2.2573 | 2.2517 | 2.2480 | 0.0117 |
+| `smax,smax` (C2) | 2.1235 | 2.1549 | 2.1559 | 2.1448 | 0.0184 |
+
+val@1800 (régime sur-appris) : dlind {1.9932, 2.0075, 2.0838} moy. **2.0281** vs lin 2.7860 et smax 3.1142.
+
+**(b) Profillage batch-1** (checkpoint s1337 entraîné, garde-fou 9.18e-06 ✔, `results/profile_inf_dlind-dlind.json`) :
+
+| Contexte T | `dlind,dlind` | `lin,lin` | `smax,smax` (C2) |
+|---|---|---|---|
+| 256 | 2 404 | 2 494 | 2 404 |
+| 1 024 | 1 789 | 2 652 | 1 341 |
+| 4 096 | **2 583** | **2 693** | 588 |
+
+KV-cache **0 octet** (état constant 19 Ko) — profil plat comme le linéaire, sans son plafond de qualité.
+
+### 5. Analyse
+
+1. **H2 confirmée — et au-delà du critère** : mean(val_min) = 1.8976 ≤ 2.1964. Le delta rule ne rattrape pas 50 % de l'écart lin↔smax, il le **dépasse de 340 %** : 1.8976 est **0.247 nat sous** le softmax (2.1448). À paramètres égaux (240 488), la couche à état delta bat l'attention softmax en qualité sur ce périmètre.
+2. **H4b confirmée — la régularisation non seulement survit, elle s'amplifie** : val@1800 = 2.0281 ≤ 2.914. L'écart val@1800 − val_min mesure la pente de surapprentissage : **+0.13** (dlind) contre +0.54 (lin) et +0.97 (smax). L'état qui remplace borne la mémorisation bien plus fort que l'état qui additionne — cohérent avec H4 et avec la mécanique (écraser la trace similaire ≠ accumuler).
+3. **Variance la plus faible des trois configurations** (std 0.0131) : le choix de la mise à jour est robuste au seed, contrairement à l'hybride `lin,smax` (std 0.0580).
+4. **β appris ≈ 0.54–0.60 sur les 8 têtes** (γ ∈ [0.16, 0.41] au checkpoint s1337) : le modèle remplace ~57 % de la trace à chaque écriture — choix cohérent entre têtes et couches, ni 0 (pur cumul = lin) ni 1 (pur remplacement).
+5. **Coûts asymétriques** : entraînement plus lent que les baselines (≈ 3 950–4 330 tok/s vs ≈ 5 500–6 200 pour smax) à cause de la forme séquentielle + BPTT — coût d'implémentation NumPy, pas conceptuel (forme chunked de Yang et al. 2024 hors périmètre, consignée). En **génération**, l'avantage s'inverse : plat à T=4096 (2 583 tok/s, 0 octet de KV) là où smax s'effondre (588).
+6. **Périmètre** : corpus 11 Ko, modèle 240 K, 2 couches — la supériorité qualitative sur smax est une mesure à ce scale, pas une loi générale ; le critère H2 reste le contrat.
+
+### 6. Décision
+
+**C3 ✅ terminé — H2 et H4b confirmées (3/3 seeds).** La delta rule normalisée devient la **couche d'état de référence** du programme : qualité > softmax, mémoire constante, génération plate à long contexte, variance de seed minimale. Décision : **POURSUIVRE → C4 (H3 ternaire)** — l'entraînement *dans* la contrainte {-1, 0, +1} sur la base `dlind,dlind`, pour convertir ce gain de qualité en gain mémoire/bande passante réels. La forme parallèle chunked (Yang et al. 2024) reste un candidat de cycle « ingénierie » pour l'entraînement.

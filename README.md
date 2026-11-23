@@ -14,7 +14,7 @@ Recherche menée en **cycles complets et traçables** (méthode « get-research-
 |---|---|---|---|
 | **C1** | Combien de couches softmax suffisent ? (0/2, 1/2, 2/2) | H1 | ✅ terminé — voir `RESEARCH_LOG.md` |
 | C2 | Bruit de seed (3×3) + profilage d'inférence batch-1 | H0, H1b | ✅ terminé — H1b infirmée, H4 ouverte |
-| C3 | Delta rule : l'état qui remplace au lieu d'additionner | H2 | à venir |
+| C3 | Delta rule : l'état qui remplace au lieu d'additionner | H2, H4b | ✅ terminé — H2 confirmée (dlind **dépasse** smax : 1.8976 vs 2.1448), H4b confirmée |
 | C4 | Ternarisation façon BitNet : entraîner avec {-1, 0, +1} | H3 | à venir |
 
 ## Arborescence

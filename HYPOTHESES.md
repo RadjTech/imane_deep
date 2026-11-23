@@ -16,7 +16,8 @@
 - **Secondaire H4b (la régularisation survit-elle ?)** : mean(val@1800)(`dlind,dlind`) ≤ mean(val@1800)(`smax,smax`) − 0.2 = **2.914** → confirmée (l'état delta borne toujours la mémorisation) ; sinon → infirmée.
 - **Coût** : +8 paramètres (γ par tête : 2 couches × 4) sur 240 480 (+0.003 %). Entraînement en forme séquentielle + BPTT (coût d'implémentation NumPy, pas conceptuel — la forme parallèle chunked de Yang et al. 2024 est hors périmètre C3).
 - **Correction de stabilité (annoncée avant les runs)** : le premier garde-fou a montré que la delta rule **diverge avec des clés non normalisées** (β·‖φ(k)‖² ≫ 1 → état oscillant exponentiellement, gradients ~1e10). Conformément à Schlag et al., les clés sont normalisées après φ : **k̂ = φ(k)/‖φ(k)‖**, utilisées dans l'état, Z et la récupération ; facteur d'écriture (1−β) ∈ [0,1) → stabilité garantie. Cette normalisation fait partie de la définition de `dlind` (elle aussi présent dans la littérature de référence).
-- **Statut** : à tester (C3, seeds {1337, 2024, 777}).
+- **Statut** : ✅ **confirmée (3 seeds, C3)** — mean(val_min)(`dlind,dlind`) = **1.8976 ± 0.0131** ≤ 2.1964. Au-delà du critère : le delta rule **dépasse le softmax** de 0.247 nat (rattrapage de 340 % de l'écart lin↔smax), 3/3 seeds, variance la plus faible des trois configurations. Voir `RESEARCH_LOG.md` cycle C3.
+- **H4b** : ✅ **confirmée** — mean(val@1800)(`dlind,dlind`) = **2.0281** ≤ 2.914. Pente de surapprentissage val@1800 − val_min : **+0.13** (dlind) vs +0.54 (lin) vs +0.97 (smax) → l'état qui remplace borne la mémorisation plus fort que l'état qui additionne ; H4 renforcée.
 
 ## H3 — L'entraînement dans la contrainte ternaire vaut mieux que la quantification a posteriori
 - **Énoncé** : ré-entraîner avec poids contraints {-1, 0, +1} (surrogate gradient) dégrade la perte val **de moins de 0.15 nat** par rapport au float32, contre une dégradation > 0.30 nat pour la quantification directe du checkpoint.
@@ -36,4 +37,4 @@
 ## H4 — L'état récurrent agit comme régulariseur (ouverte en C2)
 - **Énoncé** : au régime sur-appris (1 800 pas, val_min depuis longtemps dépassé), la val finale de l'hybride est **meilleure** que celle du tout-softmax, parce que la couche à état borne la capacité de mémorisation.
 - **Critère** : val@1800(lin,smax) < val@1800(smax,smax) sur ≥ 3 seeds, écart moyen ≥ 0.2 nat.
-- **Statut** : ✅ **confirmée à 3 seeds (C2)** — val@1800 : hybride {2.4596, 2.5857, 2.6091} (moy. 2.5515) vs softmax {3.1385, 3.1218, 3.0822} (moy. 3.1142) ; écart moyen **0.56 nat**, 3/3 victoires. À ré-évaluer dans C3 (la delta rule doit conserver cet effet).
+- **Statut** : ✅ **confirmée à 3 seeds (C2)** — val@1800 : hybride {2.4596, 2.5857, 2.6091} (moy. 2.5515) vs softmax {3.1385, 3.1218, 3.0822} (moy. 3.1142) ; écart moyen **0.56 nat**, 3/3 victoires. **Ré-évaluée en C3 : renforcée** — la delta rule (état qui remplace) sur-apprend encore moins : +0.13 nat de val_min à val@1800, contre +0.54 (lin) et +0.97 (smax).

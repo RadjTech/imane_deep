@@ -1,1 +1,19 @@
 === RUN c3_dlind-dlind_s1337 ===
+[HYBRIDE types=['dlind', 'dlind']] corpus 11,172 car. | V=77 | params 240,488 | seed 1337
+     0 |      4.3560 |     4.3562 | 1.00e-05 |     851
+  1000 |      1.3827 |     1.9094 | 5.08e-04 |    4065
+  1800 |      0.9780 |     1.9932 | 1.00e-04 |    3948
+RÉSUMÉ : {"types": ["dlind", "dlind"], "seed": 1337, "params": 240488, "val_min": 1.8931010961532593, "val_min_step": 900, "val_final": 1.9931501150131226, "train_final": 0.97796231508255, "kv_cache_octets_par_token": 0}
+=== RUN c3_dlind-dlind_s2024 ===
+[HYBRIDE types=['dlind', 'dlind']] corpus 11,172 car. | V=77 | params 240,488 | seed 2024
+     0 |      4.3695 |     4.3551 | 1.00e-05 |     910
+  1000 |      1.3760 |     1.9034 | 5.08e-04 |    4070
+  1800 |      1.0718 |     2.0075 | 1.00e-04 |    3974
+RÉSUMÉ : {"types": ["dlind", "dlind"], "seed": 2024, "params": 240488, "val_min": 1.8872897624969482, "val_min_step": 900, "val_final": 2.007472515106201, "train_final": 1.0717792510986328, "kv_cache_octets_par_token": 0}
+=== RUN c3_dlind-dlind_s777 ===
+[HYBRIDE types=['dlind', 'dlind']] corpus 11,172 car. | V=77 | params 240,488 | seed 777
+     0 |      4.3510 |     4.3420 | 1.00e-05 |     904
+  1000 |      1.3154 |     1.9124 | 5.08e-04 |    4058
+  1800 |      1.0048 |     2.0838 | 1.00e-04 |    3954
+RÉSUMÉ : {"types": ["dlind", "dlind"], "seed": 777, "params": 240488, "val_min": 1.9123655557632446, "val_min_step": 1000, "val_final": 2.0837807655334473, "train_final": 1.0047858953475952, "kv_cache_octets_par_token": 0}
+✔ runs C3 terminés

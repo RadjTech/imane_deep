@@ -3,40 +3,40 @@
   "dlind",
   "dlind"
  ],
- "ckpt": "/tmp/smoke_dlind/checkpoint.npz",
- "equivalence_max_diff": 7.152557373046875e-07,
+ "ckpt": "results/c3_dlind-dlind_s1337/checkpoint.npz",
+ "equivalence_max_diff": 9.179115295410156e-06,
  "v_gen_dans_distribution": {
   "16": {
-   "tok_s": 1272.1,
-   "prefill_tok_s": 2741.1,
+   "tok_s": 2133.9,
+   "prefill_tok_s": 1808.9,
    "kv_a_mi_trajet_octets": 0
   },
   "48": {
-   "tok_s": 2355.2,
-   "prefill_tok_s": 1555.0,
+   "tok_s": 1669.6,
+   "prefill_tok_s": 1728.2,
    "kv_a_mi_trajet_octets": 0
   },
   "96": {
-   "tok_s": 2694.4,
-   "prefill_tok_s": 2777.2,
+   "tok_s": 1876.2,
+   "prefill_tok_s": 1763.0,
    "kv_a_mi_trajet_octets": 0
   }
  },
  "v_gen_naive_fenetre": null,
  "scaling_mecanisme": {
   "256": {
-   "prefill_tok_s": 1675.9,
-   "v_gen_tok_s": 2500.5,
+   "prefill_tok_s": 2091.0,
+   "v_gen_tok_s": 2403.8,
    "kv_octets": 0
   },
   "1024": {
-   "prefill_tok_s": 1910.9,
-   "v_gen_tok_s": 2681.1,
+   "prefill_tok_s": 2260.6,
+   "v_gen_tok_s": 1789.1,
    "kv_octets": 0
   },
   "4096": {
-   "prefill_tok_s": 1906.0,
-   "v_gen_tok_s": 1615.7,
+   "prefill_tok_s": 2597.5,
+   "v_gen_tok_s": 2582.9,
    "kv_octets": 0
   }
  },

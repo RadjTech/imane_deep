@@ -36,17 +36,18 @@
 
 | Configuration | Q (val min) | Q@1800 (régime sur-appris) | M@T=4096 |
 |---|---|---|---|
-| `smax,smax` | **2.1448 ± 0.018** | 3.1142 ± 0.0289 | ≈ 6,1 Mo (KV, croît) |
-| `lin,smax` | 2.1652 ± 0.058 | **2.5515 ± 0.0804** | ≈ 3,1 Mo (croît ÷2) |
+| `dlind,dlind` (C3) | **1.8976 ± 0.0131** | **2.0281 ± 0.047** | **0 (état 19 Ko constant)** |
+| `smax,smax` | 2.1448 ± 0.018 | 3.1142 ± 0.0289 | ≈ 6,1 Mo (KV, croît) |
+| `lin,smax` | 2.1652 ± 0.058 | 2.5515 ± 0.0804 | ≈ 3,1 Mo (croît ÷2) |
 | `lin,lin` | 2.2480 ± 0.012 | 2.786 ± 0.0487 | **0 (état 19 Ko constant)** |
 
 **V_gen batch-1 mesurée (tok/s, NumPy 2 CPU, ±20 % de bruit de timing)** :
 
-| Contexte T | `smax,smax` | `lin,smax` | `lin,lin` |
-|---|---|---|---|
-| 256 | 2 404 | 2 394 | 2 494 |
-| 1 024 | 1 341 | 1 824 | 2 652 |
-| 4 096 | 588 | 948 | **2 693 (plat)** |
+| Contexte T | `dlind,dlind` (C3) | `smax,smax` | `lin,smax` | `lin,lin` |
+|---|---|---|---|---|
+| 256 | 2 404 | 2 404 | 2 394 | 2 494 |
+| 1 024 | 1 789 | 1 341 | 1 824 | 2 652 |
+| 4 096 | **2 583 (plat)** | 588 | 948 | **2 693 (plat)** |
 
 KV-cache incrémental vs génération naïve : **×18,6** (140,7 → 2 610 tok/s). Le profil O(1) du linéaire et la décroissance O(T) du softmax sont maintenant des mesures, pas des prédictions.
 

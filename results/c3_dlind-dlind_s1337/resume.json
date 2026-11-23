@@ -1,0 +1,13 @@
+{
+ "types": [
+  "dlind",
+  "dlind"
+ ],
+ "seed": 1337,
+ "params": 240488,
+ "val_min": 1.8931010961532593,
+ "val_min_step": 900,
+ "val_final": 1.9931501150131226,
+ "train_final": 0.97796231508255,
+ "kv_cache_octets_par_token": 0
+}
