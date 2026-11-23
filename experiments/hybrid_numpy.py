@@ -120,6 +120,94 @@ def att_lin_bw(dy, c):
     return dQ, dK, dV
 
 
+# ---------- normalisation des clés (stabilité de la delta rule) ----------
+
+def norm_keys_fw(K):
+    """k̂ = k/‖k‖₂ par tête : garantit β·‖k̂‖² = β ≤ 1 (contraction) — sans ça
+    l'état de la delta rule diverge (constaté au garde-fou : gradients 1e10)."""
+    n = np.linalg.norm(K, axis=-1, keepdims=True) + 1e-8
+    return K / n, n
+
+
+def norm_keys_bw(dKhat, K, n):
+    """Backward de k̂ = k/n : dk = (dK̂ − k̂·(dK̂·k̂)) / n."""
+    Khat = K / n
+    dot = (dKhat * Khat).sum(-1, keepdims=True)
+    return (dKhat - Khat * dot) / n
+
+
+# ---------- attention delta rule (par tête) : forme séquentielle + BPTT ----------
+
+def att_delta_fw(Q, K, V, beta):
+    """Delta rule — identique à `lin` SAUF la mise à jour de l'état :
+        y_t = Q_t·S_{t-1} / (Q_t·Z_{t-1} + ε)
+        e_t = V_t − S_{t-1}·k_t                      (trace déjà stockée)
+        S_t = S_{t-1} + β·k_t ⊗ e_t                  (remplace au lieu d'additionner)
+        Z_t = Z_{t-1} + k_t
+    Q,K : sorties de φ (B,H,T,dh) ; V brut ; beta : (H,) dans (0,1).
+    Boucle séquentielle sur T (la forme parallèle chunked est hors périmètre C3) ;
+    cache complet pour le BPTT."""
+    B, H, T, dh = Q.shape
+    S = np.zeros((B, H, dh, dh), dtype=Q.dtype)
+    Z = np.zeros((B, H, dh), dtype=Q.dtype)
+    Y = np.empty_like(Q)
+    c = {"Q": Q, "K": K, "V": V, "beta": beta,
+         "S_prev": [], "Z_prev": [], "e": [], "num": [], "den": []}
+    for t in range(T):
+        q, k, v = Q[:, :, t], K[:, :, t], V[:, :, t]          # (B,H,dh)
+        num = np.einsum("bhi,bhij->bhj", q, S)
+        den = np.einsum("bhi,bhi->bh", q, Z) + EPS_DEN
+        y = num / den[..., None]
+        e = v - np.einsum("bhij,bhi->bhj", S, k)              # S·k : la trace actuelle
+        c["S_prev"].append(S); c["Z_prev"].append(Z)
+        c["e"].append(e); c["num"].append(num); c["den"].append(den)
+        S = S + beta[None, :, None, None] * k[..., None] * e[:, :, None, :]
+        Z = Z + k
+        Y[:, :, t] = y
+    return Y, c
+
+
+def att_delta_bw(dY, c):
+    """BPTT de la delta rule. Renvoie dQ (après φ), dK (après φ, avant d_phi),
+    dV, dβ. Récurrence inverse : dS_{t-1} = dS_t − k⊗de + q⊗dnum."""
+    Q, K, V, beta = c["Q"], c["K"], c["V"], c["beta"]
+    B, H, T, dh = Q.shape
+    dS = np.zeros((B, H, dh, dh), dtype=Q.dtype)   # d/dS_t ; S_T ne feed rien → 0
+    dZ_all = np.empty_like(K)
+    dQ, dK, dV = np.empty_like(Q), np.zeros_like(K), np.empty_like(V)
+    dbeta = np.zeros(H, dtype=Q.dtype)
+    for t in reversed(range(T)):
+        q, k = Q[:, :, t], K[:, :, t]
+        S_prev, Z_prev = c["S_prev"][t], c["Z_prev"][t]
+        e, num, den = c["e"][t], c["num"][t], c["den"][t]
+        dy = dY[:, :, t]
+        # 1) chemin de sortie y = q·S_prev / (q·Z_prev + ε)
+        dnum = dy / den[..., None]
+        dden = -(dy * num).sum(-1) / (den ** 2)
+        dQ[:, :, t] = np.einsum("bhj,bhij->bhi", dnum, S_prev) + dden[..., None] * Z_prev
+        dZ_all[:, :, t] = q * dden[..., None]
+        # 2) chemin d'erreur — CRUCIAL : dS contient encore le gradient PUR du
+        #    futur (∂L/∂S_t). Le terme q⊗dnum (qui alimente S_{t-1} via la
+        #    sortie y_t) doit être ajouté APRÈS le calcul de de, sinon il
+        #    pollue de, dV et dK.
+        de = beta[..., None] * np.einsum("bhij,bhi->bhj", dS, k)   # de_total (∂L/∂e_t)
+        dK[:, :, t] += beta[None, :, None] * np.einsum("bhij,bhj->bhi", dS, e)
+        dbeta += np.einsum("bhij,bhi,bhj->h", dS, k, e)
+        dV[:, :, t] = de
+        dK[:, :, t] += -np.einsum("bhij,bhj->bhi", S_prev, de)   # le β est déjà dans de
+        # 3) récurrence vers S_{t-1} : pass-through − k⊗de_total (le β est déjà
+        #    dans de), PUIS + q⊗dnum
+        dS = dS - k[..., None] * de[:, :, None, :]
+        dS = dS + np.einsum("bhi,bhj->bhij", q, dnum)
+    # chemin Z : dZ_all[t] = gradient wrt Z_{t-1} (état exclusif) — k_s alimente les
+    # états Z_j pour j ≥ s, utilisés aux pas t = j+1 → décalage d'un pas (même
+    # convention que lin) puis cumsum inverse.
+    dZ_shift = np.zeros_like(dZ_all)
+    dZ_shift[:, :, :-1] = dZ_all[:, :, 1:]
+    dK += revcumsum(dZ_shift, axis=2)
+    return dQ, dK, dV, dbeta
+
+
 # ---------- bloc (type par couche) ----------
 
 def bloc_fw(P, l, typ, x, D, H, scale, mask):
@@ -133,7 +221,17 @@ def bloc_fw(P, l, typ, x, D, H, scale, mask):
     q = qkv[:, :, 0].reshape(B, T, H, dh).transpose(0, 2, 1, 3)
     k = qkv[:, :, 1].reshape(B, T, H, dh).transpose(0, 2, 1, 3)
     v = qkv[:, :, 2].reshape(B, T, H, dh).transpose(0, 2, 1, 3)
-    y, att_c = att_lin_fw(q, k, v) if typ == "lin" else att_softmax_fw(q, k, v, scale, mask)
+    beta = None
+    if typ == "lin":
+        y, att_c = att_lin_fw(q, k, v)
+    elif typ == "dlind":
+        beta = 1.0 / (1.0 + np.exp(-P[f"b{l}.gamma"].astype(x.dtype)))   # β = sigmoid(γ) ∈ (0,1)
+        Kf = phi(k)
+        Khat, kn = norm_keys_fw(Kf)
+        y, att_c = att_delta_fw(phi(q), Khat, v, beta)
+        c["beta"] = beta; c["Kf"] = Kf; c["kn"] = kn
+    else:
+        y, att_c = att_softmax_fw(q, k, v, scale, mask)
     c["att"], c["q"], c["k"] = att_c, q, k
     y = y.transpose(0, 2, 1, 3).reshape(B, T, D)
     c["y"] = y
@@ -170,6 +268,11 @@ def bloc_bw(P, l, typ, dx, c, grads, D, H, scale, mask):
     if typ == "lin":
         dq, dk, dv = att_lin_bw(dyh, c["att"])
         dq = dq * d_phi(c["q"]); dk = dk * d_phi(c["k"])
+    elif typ == "dlind":
+        dq, dkhat, dv, dbeta = att_delta_bw(dyh, c["att"])
+        dq = dq * d_phi(c["q"])
+        dk = norm_keys_bw(dkhat, c["Kf"], c["kn"]) * d_phi(c["k"])
+        grads[f"b{l}.gamma"] += dbeta * c["beta"] * (1.0 - c["beta"])   # dβ/dγ
     else:
         dq, dk, dv = att_softmax_bw(dyh, c["att"], scale, mask)
     dq2 = dq.transpose(0, 2, 1, 3).reshape(B, T, D)
@@ -192,16 +295,20 @@ def init_params(V, cfg, rng, dtype=np.float32):
     P["tok_emb"] = (rng.normal(0, std, (V, D))).astype(dtype)
     P["pos_emb"] = (rng.normal(0, std, (cfg["block_size"], D))).astype(dtype)
     for l in range(L):
-        P[f"b{l}.qkv.W"] = (rng.normal(0, std, (D, 3 * D))).astype(dtype)
-        P[f"b{l}.qkv.b"] = np.zeros(3 * D, dtype)
-        P[f"b{l}.proj.W"] = (rng.normal(0, std * rstd, (D, D))).astype(dtype)
-        P[f"b{l}.proj.b"] = np.zeros(D, dtype)
-        P[f"b{l}.fc1.W"] = (rng.normal(0, std, (D, 4 * D))).astype(dtype)
-        P[f"b{l}.fc1.b"] = np.zeros(4 * D, dtype)
-        P[f"b{l}.fc2.W"] = (rng.normal(0, std * rstd, (4 * D, D))).astype(dtype)
-        P[f"b{l}.fc2.b"] = np.zeros(D, dtype)
-        P[f"b{l}.ln1.g"] = np.ones(D, dtype); P[f"b{l}.ln1.b"] = np.zeros(D, dtype)
-        P[f"b{l}.ln2.g"] = np.ones(D, dtype); P[f"b{l}.ln2.b"] = np.zeros(D, dtype)
+        typ = cfg["types"][l]
+        if True:  # mêmes paramètres pour tous les types ; γ seulement pour dlind
+            P[f"b{l}.qkv.W"] = (rng.normal(0, std, (D, 3 * D))).astype(dtype)
+            P[f"b{l}.qkv.b"] = np.zeros(3 * D, dtype)
+            P[f"b{l}.proj.W"] = (rng.normal(0, std * rstd, (D, D))).astype(dtype)
+            P[f"b{l}.proj.b"] = np.zeros(D, dtype)
+            P[f"b{l}.fc1.W"] = (rng.normal(0, std, (D, 4 * D))).astype(dtype)
+            P[f"b{l}.fc1.b"] = np.zeros(4 * D, dtype)
+            P[f"b{l}.fc2.W"] = (rng.normal(0, std * rstd, (4 * D, D))).astype(dtype)
+            P[f"b{l}.fc2.b"] = np.zeros(D, dtype)
+            P[f"b{l}.ln1.g"] = np.ones(D, dtype); P[f"b{l}.ln1.b"] = np.zeros(D, dtype)
+            P[f"b{l}.ln2.g"] = np.ones(D, dtype); P[f"b{l}.ln2.b"] = np.zeros(D, dtype)
+            if typ == "dlind":
+                P[f"b{l}.gamma"] = np.zeros(cfg["n_head"], dtype)   # β = sigmoid(γ), init 0.5
     P["lnf.g"] = np.ones(D, dtype); P["lnf.b"] = np.zeros(D, dtype)
     return P
 
@@ -293,38 +400,42 @@ def prendre_batch(data, B, T, rng):
     return np.stack([data[i:i + T] for i in ix]), np.stack([data[i + 1:i + T + 1] for i in ix])
 
 def verifier_gradients(args):
-    print("[GARDE-FOU] vérification des gradients (float64, types mixtes lin+smax)...")
-    texte, ids, _, itos = charger_donnees(args.data)
-    ids = ids[:300]
-    cfg = {"vocab_size": len(itos), "d_model": 16, "n_head": 2,
-           "types": ["lin", "smax"], "block_size": 12}
-    rng = np.random.default_rng(0)
-    P = init_params(len(itos), cfg, rng, dtype=np.float64)
-    x, y = prendre_batch(ids, B=2, T=cfg["block_size"], rng=rng)
+    ok_global = True
+    for types_test in (["lin", "smax"], ["dlind", "dlind"]):
+        print(f"[GARDE-FOU] vérification des gradients (float64, types={types_test})...")
+        texte, ids, _, itos = charger_donnees(args.data)
+        ids = ids[:300]
+        cfg = {"vocab_size": len(itos), "d_model": 16, "n_head": 2,
+               "types": types_test, "block_size": 12}
+        rng = np.random.default_rng(0)
+        P = init_params(len(itos), cfg, rng, dtype=np.float64)
+        x, y = prendre_batch(ids, B=2, T=cfg["block_size"], rng=rng)
 
-    def perte_seule(P_):
-        return forward(P_, cfg, x, y)[1]
+        def perte_seule(P_):
+            return forward(P_, cfg, x, y)[1]
 
-    _, perte, cache = forward(P, cfg, x, y)
-    grads = backward(P, cfg, cache, y)
-    rng2 = np.random.default_rng(1)
-    eps = 1e-5
-    pire = 0.0
-    for k in P:
-        flat, gflat = P[k].reshape(-1), grads[k].reshape(-1)
-        for i in rng2.integers(0, flat.size, size=min(4, flat.size)):
-            sauve = flat[i]
-            flat[i] = sauve + eps; lp = perte_seule(P)
-            flat[i] = sauve - eps; lm = perte_seule(P)
-            flat[i] = sauve
-            num = (lp - lm) / (2 * eps)
-            rel = abs(gflat[i] - num) / max(abs(gflat[i]), abs(num), 1e-8)
-            pire = max(pire, rel)
-            if rel > 1e-4:
-                print(f"  ÉCART : {k}[{i}] analytique={gflat[i]:.8f} numérique={num:.8f} rel={rel:.2e}")
-    print(f"Plus grand écart relatif : {pire:.2e}")
-    print("=> BACKWARD VALIDÉ ✔" if pire < 1e-4 else "=> PROBLÈME ✘ — entraînement interdit par le protocole")
-    return pire < 1e-4
+        _, perte, cache = forward(P, cfg, x, y)
+        grads = backward(P, cfg, cache, y)
+        rng2 = np.random.default_rng(1)
+        eps = 1e-5
+        pire = 0.0
+        for k in P:
+            flat, gflat = P[k].reshape(-1), grads[k].reshape(-1)
+            for i in rng2.integers(0, flat.size, size=min(4, flat.size)):
+                sauve = flat[i]
+                flat[i] = sauve + eps; lp = perte_seule(P)
+                flat[i] = sauve - eps; lm = perte_seule(P)
+                flat[i] = sauve
+                num = (lp - lm) / (2 * eps)
+                rel = abs(gflat[i] - num) / max(abs(gflat[i]), abs(num), 1e-8)
+                pire = max(pire, rel)
+                if rel > 1e-4:
+                    print(f"  ÉCART : {k}[{i}] analytique={gflat[i]:.8f} numérique={num:.8f} rel={rel:.2e}")
+        print(f"Plus grand écart relatif ({'+'.join(types_test)}) : {pire:.2e}")
+        ok = pire < 1e-4
+        ok_global = ok_global and ok
+    print("=> BACKWARD VALIDÉ ✔" if ok_global else "=> PROBLÈME ✘ — entraînement interdit par le protocole")
+    return ok_global
 
 
 def entrainer(args):

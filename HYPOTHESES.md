@@ -11,9 +11,12 @@
 - **Conséquence** : 50 % de couches softmax récupèrent ~80 % de l'écart de qualité avec une croissance de KV-cache ÷2. Ouvre la carte des ratios à 4 couches et C3 (delta rule pour le résidu).
 
 ## H2 — La delta rule récupère la précision de récupération de l'état
-- **Énoncé** : remplacer `S += k⊗v` par `S += β·k⊗(v − Sᵀk)` (l'état écrase la trace similaire au lieu d'additionner) réduit d'au moins 50 % l'écart val entre tout-linéaire et tout-softmax **à coût paramètres égal**.
-- **Critère** : val_min(delta) ≤ 2.23 − 0.5×(2.23−2.12) = **2.175** → confirmée.
-- **Statut** : à tester (cycle C3 — prérequis : forme récurrente + BPTT, backward vérifié).
+- **Énoncé** : remplacer **uniquement** la mise à jour de l'état `S += k⊗v` par la delta rule `S += β·k⊗(v − S·k)` (β appris par tête via sigmoid(γ), normalisateur Z et feature map φ inchangés — ablation d'une seule chose) récupère **au moins 50 %** de l'écart entre tout-linéaire et tout-softmax, à protocole C2.
+- **Critère (calibré sur les moyennes C2, annoncé avant l'expérience)** : mean(val_min)(`dlind,dlind`) ≤ 2.2480 − 0.5×(2.2480 − 2.1448) = **2.1964** → confirmée ; sinon → infirmée. Rattrapage rapporté : (2.2480 − mean_dlind)/0.1032.
+- **Secondaire H4b (la régularisation survit-elle ?)** : mean(val@1800)(`dlind,dlind`) ≤ mean(val@1800)(`smax,smax`) − 0.2 = **2.914** → confirmée (l'état delta borne toujours la mémorisation) ; sinon → infirmée.
+- **Coût** : +8 paramètres (γ par tête : 2 couches × 4) sur 240 480 (+0.003 %). Entraînement en forme séquentielle + BPTT (coût d'implémentation NumPy, pas conceptuel — la forme parallèle chunked de Yang et al. 2024 est hors périmètre C3).
+- **Correction de stabilité (annoncée avant les runs)** : le premier garde-fou a montré que la delta rule **diverge avec des clés non normalisées** (β·‖φ(k)‖² ≫ 1 → état oscillant exponentiellement, gradients ~1e10). Conformément à Schlag et al., les clés sont normalisées après φ : **k̂ = φ(k)/‖φ(k)‖**, utilisées dans l'état, Z et la récupération ; facteur d'écriture (1−β) ∈ [0,1) → stabilité garantie. Cette normalisation fait partie de la définition de `dlind` (elle aussi présent dans la littérature de référence).
+- **Statut** : à tester (C3, seeds {1337, 2024, 777}).
 
 ## H3 — L'entraînement dans la contrainte ternaire vaut mieux que la quantification a posteriori
 - **Énoncé** : ré-entraîner avec poids contraints {-1, 0, +1} (surrogate gradient) dégrade la perte val **de moins de 0.15 nat** par rapport au float32, contre une dégradation > 0.30 nat pour la quantification directe du checkpoint.

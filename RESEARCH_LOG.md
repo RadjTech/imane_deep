@@ -111,3 +111,30 @@ Garde-fou profileur : équivalence incrémental↔parallèle ≤ 3,7e-05 sur les
 - **POURSUIVRE → C3 (delta rule, H2)** : candidat principal pour récupérer les 0.103 nat manquants du tout-linéaire à mémoire constante.
 - **Nouvelle hypothèse H4 annoncée** (voir `HYPOTHESES.md`) : l'effet régulariseur de l'état — à mesurer aussi dans C3 (val@1800 en plus de val_min dans TOUS les protocoles futurs).
 - Design futur : si un écart fin doit être tranché, passer à 5 seeds (coût ~10 min/seed, assumé).
+
+---
+
+## Cycle C3 — Delta rule : l'état qui remplace au lieu d'additionner
+
+**Date** : 2026-11-23 · **Statut** : 🔎 en cours
+
+### 1. Question
+La mise à jour delta `S += β·k⊗(v − S·k)` — qui écrase la trace similaire au lieu d'additionner — récupère-t-elle la qualité manquante du tout-linéaire (résidu de 0.103 nat mesuré en C2) tout en gardant l'état constant et l'effet régulariseur (H4) ?
+
+### 2. Hypothèses annoncées avant l'expérience
+- **H2** (critère calibré C2) : mean(val_min)(`dlind,dlind`) ≤ **2.1964** (rattrapage ≥ 50 %).
+- **H4b** : mean(val@1800)(`dlind,dlind`) ≤ **2.914** (la régularisation survit à la delta rule).
+
+### 3. Protocole (commité avant l'expérience)
+- Nouveau type de couche `dlind` dans `experiments/hybrid_numpy.py` : **seule la mise à jour de S change** par rapport à `lin` (Z, φ, normalisation identiques). β = sigmoid(γ) appris par tête (+8 paramètres, +0.003 %).
+- Forme d'entraînement : séquentielle (boucle sur T) + **BPTT écrit à la main** — garde-fou `--check-grads` étendu aux types `dlind,dlind` (obligatoire avant tout run). La forme parallèle chunked (Yang et al. 2024) est hors périmètre C3, consigné comme coût d'implémentation.
+- 3 seeds {1337, 2024, 777} × `dlind,dlind`, 1 800 pas, tout le reste identique à C2. Baselines de référence : moyennes C2 (`smax,smax` 2.1448/3.1142, `lin,lin` 2.2480/2.7860).
+- Profilage batch-1 du checkpoint s1337 (V_gen à T ∈ {256, 1024, 4096}, mémoire d'état) — comparé au `lin,lin` plat (2 693 tok/s).
+- Analyse pré-enregistrée : `scripts/analyse_c3.py`.
+- Exécution : `scripts/run_c3.sh`.
+
+### 4. Résultats — à remplir à la fin des runs
+
+### 5. Analyse — à remplir
+
+### 6. Décision — à remplir
