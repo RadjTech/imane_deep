@@ -55,7 +55,7 @@ class GenerationIncrementale:
         P, D, H, dh = self.P, self.D, self.n_head, self.dh
         self.S, self.Z, self.kv = {}, {}, {}
         for l, t in enumerate(self.types):
-            if t == "lin":
+            if t in ("lin", "dlind"):
                 self.S[l] = np.zeros((H, dh, dh), np.float32)
                 self.Z[l] = np.zeros((H, dh), np.float32)
             else:
@@ -73,12 +73,19 @@ class GenerationIncrementale:
             q = qkv[:, :D].reshape(H, dh)
             k = qkv[:, D:2 * D].reshape(H, dh)
             v = qkv[:, 2 * D:].reshape(H, dh)
-            if typ == "lin":
+            if typ in ("lin", "dlind"):
                 Q, K = hn.phi(q), hn.phi(k)
+                if typ == "dlind":
+                    K = K / (np.linalg.norm(K, axis=-1, keepdims=True) + 1e-8)  # clés normalisées
                 num = np.einsum("hi,hij->hj", Q, self.S[l])
                 den = np.einsum("hi,hi->h", Q, self.Z[l]) + hn.EPS_DEN
                 y = (num / den[:, None]).reshape(1, D)
-                self.S[l] += np.einsum("hi,hj->hij", K, v)
+                if typ == "dlind":
+                    b = 1.0 / (1.0 + np.exp(-self.P[f"b{l}.gamma"].astype(np.float32)))  # β = sigmoid(γ)
+                    e = v - np.einsum("hij,hi->hj", self.S[l], k)
+                    self.S[l] += b[:, None, None] * k[:, :, None] * e[:, None, :]
+                else:
+                    self.S[l] += np.einsum("hi,hj->hij", K, v)
                 self.Z[l] += K
             else:
                 Kc, Vc, n = self.kv[l]
@@ -112,8 +119,8 @@ def memoire(types, D, P, t_ctx, n_head=4):
     etat = 0
     kv = 0
     for t in types:
-        if t == "lin":
-            etat += (n_head * dh * dh + n_head * dh) * 4   # S (H×dh×dh) + Z (H×dh)
+        if t in ("lin", "dlind"):
+            etat += (n_head * dh * dh + n_head * dh) * 4   # S (H×dh×dh) + Z (H×dh) — constant
         else:
             kv += 2 * t_ctx * D * 4                        # K + V, float32
     return {"poids_octets": poids, "etat_lin_octets": etat, "kv_octets": kv}

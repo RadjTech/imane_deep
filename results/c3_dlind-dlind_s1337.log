@@ -1,0 +1,4 @@
+[HYBRIDE types=['dlind', 'dlind']] corpus 11,172 car. | V=77 | params 240,488 | seed 1337
+  step | perte train |  perte val |       lr |   tok/s
+     0 |      4.3560 |     4.3562 | 1.00e-05 |     851
+   100 |      2.4673 |     2.4101 | 1.00e-03 |    4323
