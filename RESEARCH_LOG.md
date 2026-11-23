@@ -45,3 +45,33 @@ Sources : `results/c1_synthese.json`, CSV bruts dans `results/`. Garde-fou : éc
 
 ---
 *Fin du cycle C1 — traçabilité : commits `C1:`, CI garde-fous active.*
+
+---
+
+## Cycle C2 — 3 seeds × 3 configurations + profilage d'inférence batch-1
+
+**Date** : 2026-11-23 · **Statut** : 🔎 en cours
+
+### 1. Question
+(1) La supériorité de l'hybride `lin,smax` sur `smax,smax` observée en C1 survit-elle au bruit de seed (H1b) ? (2) Quel est le profil réel d'inférence batch-1 des trois mécanismes : V_gen mesuré, mémoire d'état, scaling en longueur de contexte ?
+
+### 2. Hypothèses annoncées avant l'expérience
+- **H0** (bruit) : std inter-seeds de val_min attendu dans [0.02, 0.04] nat — critères de décision dans `HYPOTHESES.md`.
+- **H1b** (consolidation) : mean(val_min)(lin,smax) ≤ mean(val_min)(smax,smax) sur 3 seeds → confirmée ; sinon le résultat C1 est rétrogradé.
+
+### 3. Protocole (commité avant l'expérience)
+- **9 points statistiques** : {smax,smax ; lin,lin ; lin,smax} × seeds {1337, 2024, 777} via `experiments/hybrid_numpy.py` (1800 pas, identique C1). Le point (lin,smax, 1337) est réutilisé de C1 (même script, même seed).
+- **Test d'équivalence d'implémentation** : le run (smax,smax, 1337) du script unifié doit reproduire le run C1 du script du cours à < 5e-3 nat près (sinon → tous les points re-run avec un seul script).
+- **Profilage** (`experiments/profiler_inf.py`, garde-fou : équivalence incrémental↔parallèle < 1e-3 sur les logits) :
+  - V_gen mesuré à T0 ∈ {16, 48, 96} (dans la distribution d'entraînement) ;
+  - scaling mécanisme à T ∈ {256, 1024, 4096} avec pos_emb neutralisé (hors distribution *qualité* — mesure du mécanisme seul, documenté comme correction de périmètre : modèles entraînés à T=96) ;
+  - mémoire : poids, état linéaire constant, KV-cache par longueur ;
+  - contraste : génération naïve (re-calcul de la fenêtre) vs KV-cache incrémental.
+- **Analyse pré-enregistrée** : `scripts/analyse_c2.py` (moyennes ± std, victoires appariées par seed, verdicts selon les critères H0/H1b).
+- Exécution : `scripts/run_c2.sh` (8 runs restants, séquentiels, env identique à C1).
+
+### 4. Résultats — à remplir à la fin des runs
+
+### 5. Analyse — à remplir
+
+### 6. Décision — à remplir

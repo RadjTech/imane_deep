@@ -20,6 +20,12 @@
 - **Critère** : Δ(entrain-within) < Δ(quantify-after) / 2 → confirmée.
 - **Statut** : à tester (cycle C4).
 
-## H0 — (méthodologique, permanente) Tout écart < 0.03 nat entre configurations est du bruit de seed
-- **Énoncé** : à ce scale (240 K, corpus 11 Ko), la variance inter-seeds de val_min est de l'ordre de 0.02-0.04 nat. Aucune comparaison sous ce seuil n'est interprétable sans ≥ 3 seeds.
-- **Statut** : à mesurer dans C2 (3 seeds × 3 configurations) — cette mesure est un prérequis à toute conclusion fine.
+## H0 — (méthodologique, permanente) Tout écart < seuil de bruit est ininterprétable sans seeds
+- **Énoncé** : à ce scale (240 K, corpus 11 Ko), l'écart type inter-seeds de val_min est attendu dans [0.02, 0.04] nat. Toute comparaison entre configurations dont l'écart moyen est inférieur à 2× cet écart type n'est pas interprétable.
+- **Critère de mesure (C2)** : si std_max(configs) < 0.015 → le seuil d'interprétation est abaissé à 2×std_max ; si std_max > 0.05 → plus de seeds requis avant toute conclusion.
+- **Statut** : 🔎 **en cours de mesure** (C2 : 3 seeds × 3 configurations) — prérequis à toute conclusion fine.
+
+## H1b — (consolidation C2) La supériorité de l'hybride survit au bruit de seed
+- **Énoncé** : l'observation C1 (val_min(lin,smax) < val_min(smax,smax)) est robuste si, **en moyenne sur 3 seeds** {1337, 2024, 777}, mean(val_min(lin,smax)) ≤ mean(val_min(smax,smax)).
+- **Critère** : moyennes ordonnées ainsi → H1b confirmée (« établie à 3 seeds ») ; sinon → H1b infirmée (le résultat C1 était un hasard de seed) et le statut de H1 retombe à « indication ».
+- **Statut** : à tester (C2, annoncé avant l'expérience).
