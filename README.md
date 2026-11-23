@@ -15,7 +15,7 @@ Recherche menée en **cycles complets et traçables** (méthode « get-research-
 | **C1** | Combien de couches softmax suffisent ? (0/2, 1/2, 2/2) | H1 | ✅ terminé — voir `RESEARCH_LOG.md` |
 | C2 | Bruit de seed (3×3) + profilage d'inférence batch-1 | H0, H1b | ✅ terminé — H1b infirmée, H4 ouverte |
 | C3 | Delta rule : l'état qui remplace au lieu d'additionner | H2, H4b | ✅ terminé — H2 confirmée (dlind **dépasse** smax : 1.8976 vs 2.1448), H4b confirmée |
-| C4 | Ternarisation façon BitNet : entraîner avec {-1, 0, +1} | H3 | à venir |
+| C4 | Ternarisation façon BitNet : entraîner avec {-1, 0, +1} | H3 | 🔎 en cours |
 
 ## Arborescence
 
@@ -38,6 +38,7 @@ imane_deep/
 ```bash
 python3 -m pip install numpy                # seule dépendance
 python3 experiments/hybrid_numpy.py --check-grads        # GARDE-FOU obligatoire
+python3 experiments/hybrid_numpy.py --check-ternary      # garde-fou C4 (ternaire)
 python3 experiments/hybrid_numpy.py --train --types "lin,smax" --out-dir results/c1_hybride_lin_smax
 python3 experiments/hybrid_numpy.py --train --types "smax,smax" --out-dir results/c1_baseline_smax
 python3 experiments/hybrid_numpy.py --train --types "lin,lin" --out-dir results/c1_baseline_lin

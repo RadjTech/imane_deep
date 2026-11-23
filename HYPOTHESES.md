@@ -22,7 +22,7 @@
 ## H3 — L'entraînement dans la contrainte ternaire vaut mieux que la quantification a posteriori
 - **Énoncé** : ré-entraîner avec poids contraints {-1, 0, +1} (surrogate gradient) dégrade la perte val **de moins de 0.15 nat** par rapport au float32, contre une dégradation > 0.30 nat pour la quantification directe du checkpoint.
 - **Critère** : Δ(entrain-within) < Δ(quantify-after) / 2 → confirmée.
-- **Statut** : à tester (cycle C4).
+- **Statut** : 🔎 en cours (C4 — protocole commité avant les runs ; baselines C3 : float 1.8976 ± 0.0131).
 
 ## H0 — (méthodologique, permanente) Tout écart < seuil de bruit est ininterprétable sans seeds
 - **Énoncé** : à ce scale (240 K, corpus 11 Ko), l'écart type inter-seeds de val_min est attendu dans [0.02, 0.04] nat. Toute comparaison entre configurations dont l'écart moyen est inférieur à 2× cet écart type n'est pas interprétable.

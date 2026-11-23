@@ -13,6 +13,10 @@ jobs:
       - run: pip install numpy
       - name: Garde-fou gradients (protocole étape 4)
         run: python experiments/hybrid_numpy.py --check-grads
+      - name: Garde-fou ternaire C4 (protocole étape 4)
+        run: python experiments/hybrid_numpy.py --check-ternary
+      - name: Smoke train ternaire dlind,dlind (60 pas)
+        run: python experiments/hybrid_numpy.py --train --ternary --types dlind,dlind --max-steps 60 --out-dir results/ci_tern
       - name: Smoke train tout-softmax (60 pas)
         run: python experiments/hybrid_numpy.py --train --types smax,smax --max-steps 60 --out-dir results/ci_smax
       - name: Smoke train tout-linéaire (60 pas)

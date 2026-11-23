@@ -169,3 +169,30 @@ KV-cache **0 octet** (état constant 19 Ko) — profil plat comme le linéaire, 
 ### 6. Décision
 
 **C3 ✅ terminé — H2 et H4b confirmées (3/3 seeds).** La delta rule normalisée devient la **couche d'état de référence** du programme : qualité > softmax, mémoire constante, génération plate à long contexte, variance de seed minimale. Décision : **POURSUIVRE → C4 (H3 ternaire)** — l'entraînement *dans* la contrainte {-1, 0, +1} sur la base `dlind,dlind`, pour convertir ce gain de qualité en gain mémoire/bande passante réels. La forme parallèle chunked (Yang et al. 2024) reste un candidat de cycle « ingénierie » pour l'entraînement.
+
+---
+
+## Cycle C4 — Ternarisation façon BitNet : la qualité en 2 bits ?
+
+**Date** : 2026-11-23 · **Statut** : 🔎 en cours
+
+### 1. Question
+Le modèle `dlind` (C3) peut-il être entraîné **avec** ses poids de matmul contraints à {−1, 0, +1} (échelle γ par tenseur, straight-through estimator) en gardant une val proche du float — et la quantification a posteriori du même checkpoint est-elle bien pire, comme l'affirme la littérature BitNet (la ternarité doit être *dans* l'entraînement, pas après) ?
+
+### 2. Hypothèses annoncées avant l'expérience
+- **H3** (annoncée à l'ouverture du programme, critère fixé) : Δ(entraînement-dans-la-contrainte) < Δ(quantification-a-posteriori) / 2 → confirmée ; sinon → infirmée. Attentes secondaires : Δ_A < 0.15 nat ; Δ_B > 0.30 nat.
+- Définitions fixées avant les runs : **Δ_A** = mean(val_min)(`dlind,dlind` ternaire, 3 seeds) − **1.8976** (baseline C3 float, même eval d'entraînement) ; **Δ_B** = moyenne par seed de (val_ternaire − val_float) sur un **eval fixe déterministe** (fenêtres non chevauchantes sur toute la val), checkpoints C3 ternarisés post-hoc.
+
+### 3. Protocole (commité avant l'expérience)
+- **Méthode BitNet b1.58 (absmean)** : pour chaque tenseur de poids de matmul {`qkv`, `proj`, `fc1`, `fc2`} × 2 blocs : γ = mean(|W|), Q = round(clip(W/γ, −1, 1)) ∈ {−1, 0, +1}, W_eff = γ·Q. Backward : **STE** (dW_eff appliqué au W maître tel quel). Embeddings, biais, LN et γ restent float (E/S haute précision, littérature). Implémentation : **P_effectif recalculé à chaque forward** — le code float validé est réutilisé tel quel, aucune nouvelle voie de gradient.
+- **Garde-fou C4** (`--check-ternary`, obligatoire avant tout run) : (a) tests unitaires du quantificateur (valeurs ∈ {−1,0,+1}, γ>0, garde tenseur nul) ; (b) FD du backward **par rapport à P_eff** (continus → FD valide) < 1e-4 relatif, avec plancher absolu 1e-8 pour le bruit d'annulation du FD ; (c) le transfert STE maître←dW_eff est par construction et non FD-ifiable (le quantificateur est localement constant) — consigné honnêtement. Régression float `--check-grads` : 4.27e-05 ✔.
+- **Bras A** : 3 seeds {1337, 2024, 777} × `dlind,dlind --ternary`, 1 800 pas, tout le reste identique à C3 (mêmes données, optimiseur, planning lr, batch).
+- **Bras B** : les 3 checkpoints float C3 ternarisés **sans ré-entraînement** (`--quantize-after`), évalués avec l'eval fixe ; Δ_B apparié par seed (même ckpt, même eval).
+- **Mémoire** mesurée depuis le checkpoint : 2 bits/paramètre ternaire packé + 4 octets d'échelle par tenseur + reste en float32. **Profilage** V_gen du checkpoint ternaire exporté (s1337, γ·Q + échelles).
+- Analyse pré-enregistrée : `scripts/analyse_c4.py` ; exécution : `scripts/run_c4.sh`.
+
+### 4. Résultats — à remplir à la fin des runs
+
+### 5. Analyse — à remplir
+
+### 6. Décision — à remplir

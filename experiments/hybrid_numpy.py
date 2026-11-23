@@ -287,6 +287,38 @@ def bloc_bw(P, l, typ, dx, c, grads, D, H, scale, mask):
     return dx_mid + dln1.reshape(B, T, D)
 
 
+# ---------- ternaire (BitNet b1.58) — C4 ----------
+
+CLEFS_MATMUL = ("qkv.W", "proj.W", "fc1.W", "fc2.W")   # poids des matmuls ternarisés par bloc
+
+def quant_ternary(W):
+    """Quantification ternaire absmean (BitNet b1.58) :
+        γ = mean(|W|)  (échelle, une par tenseur)
+        Q = round(clip(W/γ, −1, 1)) ∈ {−1, 0, +1}
+        W_eff = γ·Q
+    Le backward traverse le quantificateur (STE : dW_eff est appliqué au W maître tel quel).
+    Le FD ne peut PAS valider ce transfert (le quantificateur est localement constant autour
+    de ses points de sortie) — il est correct par construction ; ce qui EST validé
+    numériquement : le backward par rapport à W_eff (verifier_ternaire)."""
+    gamma = float(np.mean(np.abs(W)))
+    if gamma < 1e-12:
+        gamma = 1e-12
+    Q = np.clip(np.round(W / gamma), -1.0, 1.0)
+    return (gamma * Q).astype(W.dtype), gamma
+
+def parametres_effectifs(P, cfg):
+    """P maître (float) → P effectif : les poids des matmuls sont remplacés par γ·Q ;
+    embeddings, biais, normalisations et γ restent en float (littérature BitNet :
+    couches d'entrée/sortie en haute précision). Le forward/backward float validé
+    est réutilisé tel quel sur P_eff — aucune nouvelle voie de gradient."""
+    Pe = dict(P)
+    for l in range(len(cfg["types"])):
+        for s in CLEFS_MATMUL:
+            k = f"b{l}.{s}"
+            Pe[k], _ = quant_ternary(P[k])
+    return Pe
+
+
 # ---------- modèle ----------
 
 def init_params(V, cfg, rng, dtype=np.float32):
@@ -438,6 +470,118 @@ def verifier_gradients(args):
     return ok_global
 
 
+def evaluer_fixe(P, cfg, data_val, T):
+    """Évaluation déterministe : fenêtres non chevauchantes sur TOUTE la val (B=1).
+    Contrairement à l'éval d'entraînement (10 batchs tirés), reproductible post-hoc
+    à l'identique — utilisée pour le bras B (quantification a posteriori)."""
+    pertes = []
+    for i in range(0, len(data_val) - T, T):
+        x = data_val[i:i + T][None, :]
+        y = data_val[i + 1:i + T + 1][None, :]
+        pertes.append(float(forward(P, cfg, x, y)[1]))
+    return float(np.mean(pertes))
+
+
+def verifier_ternaire(args):
+    """Garde-fou C4 : (a) tests unitaires du quantificateur ; (b) FD du backward wrt
+    P_eff (les poids effectifs — continus, donc FD valide) sur config dlind,dlind ;
+    (c) note honnête : le transfert STE maître←dW_eff est par construction, non FD-ifiable."""
+    ok = True
+    # (a) quantificateur
+    rng = np.random.default_rng(2)
+    for forme in ((64, 32), (10,), (5, 1)):
+        W = rng.normal(0, 0.1, forme)
+        W_eff, g = quant_ternary(W)
+        Q = np.unique(W_eff / g)
+        bon = set(Q) <= {-1.0, 0.0, 1.0} and g > 0 and np.abs(W_eff - g * np.clip(np.round(W / g), -1, 1)).max() == 0
+        ok &= bon
+        print(f"  quantificateur {forme} : valeurs {sorted(Q)} | γ={g:.4f} | {'✔' if bon else '✘'}")
+    W0 = np.zeros((4, 4)); W0e, g0 = quant_ternary(W0)
+    ok &= bool(np.all(W0e == 0) and g0 > 0)
+    print(f"  quantificateur tenseur nul : W_eff=0, γ>0 {'✔' if ok else '✘'} (garde)")
+    # (b) FD sur P_eff (dlind,dlind)
+    types_test = ["dlind", "dlind"]
+    texte, ids, _, itos = charger_donnees(args.data)
+    ids = ids[:300]
+    cfg = {"vocab_size": len(itos), "d_model": 16, "n_head": 2,
+           "types": types_test, "block_size": 12}
+    P = init_params(len(itos), cfg, np.random.default_rng(0), dtype=np.float64)
+    Pe = parametres_effectifs(P, cfg)
+    # vérifier que Pe est réellement ternaire sur les clés matmul
+    for l in range(len(types_test)):
+        for s in CLEFS_MATMUL:
+            k = f"b{l}.{s}"
+            _, g = quant_ternary(P[k])
+            ok &= bool(set(np.unique(Pe[k] / g)) <= {-1.0, 0.0, 1.0})
+    x, y = prendre_batch(ids, B=2, T=cfg["block_size"], rng=np.random.default_rng(1))
+    _, perte, cache = forward(Pe, cfg, x, y)
+    grads = backward(Pe, cfg, cache, y)
+    rng2 = np.random.default_rng(1)
+    eps = 1e-5
+    pire = 0.0
+    for k in Pe:
+        flat, gflat = Pe[k].reshape(-1), grads[k].reshape(-1)
+        for i in rng2.integers(0, flat.size, size=min(4, flat.size)):
+            sauve = flat[i]
+            flat[i] = sauve + eps; lp = forward(Pe, cfg, x, y)[1]
+            flat[i] = sauve - eps; lm = forward(Pe, cfg, x, y)[1]
+            flat[i] = sauve
+            num = (lp - lm) / (2 * eps)
+            # plancher absolu pour le bruit d'annulation du FD : si |g−num| < 1e-8, les deux
+            # sont d'accord (un vrai bug donne |g−num| ~ |g| lui-même, soit ≫ ce plancher)
+            d_abs = abs(gflat[i] - num)
+            rel = d_abs / max(abs(gflat[i]), abs(num), 1e-8)
+            if d_abs >= 1e-8:
+                pire = max(pire, rel)
+            if rel > 1e-4 and d_abs >= 1e-8:
+                print(f"  ÉCART : {k}[{i}] analytique={gflat[i]:.8f} numérique={num:.8f} rel={rel:.2e} d_abs={d_abs:.2e}")
+    print(f"Plus grand écart relatif FD sur P_eff (dlind,dlind) : {pire:.2e} (plancher absolu 1e-8)")
+    ok &= pire < 1e-4
+    print("(c) transfert STE (dW_eff → W maître) : par construction, non vérifiable par FD — consigné")
+    print("=> TERNAIRE VALIDÉ ✔" if ok else "=> PROBLÈME ✘ — entraînement ternaire interdit par le protocole")
+    return ok
+
+
+def quantifier_apres(args):
+    """Bras B de H3 : charger un checkpoint float (C3), ternariser SANS ré-entraînement,
+    évaluer avec l'eval fixe. Δ = val_ternaire − val_float sur le MÊME eval déterministe."""
+    P = dict(np.load(args.quantize_after))
+    types = [t.strip() for t in args.types.split(",")]
+    texte, ids, stoi, itos = charger_donnees(args.data)
+    cfg = {"vocab_size": len(itos), "d_model": args.d_model, "n_head": args.n_head,
+           "types": types, "block_size": args.block_size}
+    data_val = ids[int(0.9 * len(ids)):]
+    vf = evaluer_fixe(P, cfg, data_val, cfg["block_size"])
+    Pe = parametres_effectifs(P, cfg)
+    vt = evaluer_fixe(Pe, cfg, data_val, cfg["block_size"])
+    resume = {"ckpt": args.quantize_after, "eval": "fenêtres fixes sur val entière",
+              "val_float_fixe": round(vf, 4), "val_ternaire_fixe": round(vt, 4),
+              "delta_ternaire": round(vt - vf, 4)}
+    os.makedirs(args.out_dir, exist_ok=True)
+    seed = args.seed
+    chemin = os.path.join(args.out_dir, f"quantize_after_s{seed}.json")
+    with open(chemin, "w", encoding="utf-8") as f:
+        json.dump(resume, f, indent=1, ensure_ascii=False)
+    print("RÉSUMÉ :", json.dumps(resume, ensure_ascii=False))
+
+
+def exporter_ternaire(args):
+    """Exporte P_eff (poids effectifs γ·Q en float32 + échelles) pour le profileur."""
+    P = dict(np.load(args.export_ternary))
+    types = [t.strip() for t in args.types.split(",")]
+    cfg = {"vocab_size": P["tok_emb"].shape[0], "d_model": args.d_model, "n_head": args.n_head,
+           "types": types, "block_size": args.block_size}
+    Pe = parametres_effectifs(P, cfg)
+    echelles = {}
+    for l in range(len(types)):
+        for s in CLEFS_MATMUL:
+            _, g = quant_ternary(P[f"b{l}.{s}"])
+            echelles[f"b{l}.{s[:-2]}scale"] = np.float32(g)
+    os.makedirs(os.path.dirname(args.out_ternary) or ".", exist_ok=True)
+    np.savez_compressed(args.out_ternary, **Pe, **echelles)
+    print(f"Checkpoint ternaire exporté : {args.out_ternary} ({len(echelles)} échelles)")
+
+
 def entrainer(args):
     types = [t.strip() for t in args.types.split(",")]
     cfg = {"vocab_size": 0, "d_model": args.d_model, "n_head": args.n_head,
@@ -452,18 +596,21 @@ def entrainer(args):
     os.makedirs(args.out_dir, exist_ok=True)
     historique = [("step", "perte_train", "perte_val")]
     n_par = sum(v.size for v in P.values())
-    print(f"[HYBRIDE types={types}] corpus {len(texte):,} car. | V={len(itos)} | params {n_par:,} | seed {args.seed}")
+    prefix = " [TERNAIRE matmuls : γ·Q, STE]" if args.ternary else ""
+    print(f"[HYBRIDE types={types}]{prefix} corpus {len(texte):,} car. | V={len(itos)} | params {n_par:,} | seed {args.seed}")
     print(f"{'step':>6} | {'perte train':>11} | {'perte val':>10} | {'lr':>8} | {'tok/s':>7}")
     debut = time.time()
     for step in range(args.max_steps + 1):
         lr = taux_apprentissage(step, args.lr, args.warmup, args.max_steps)
         x, y = prendre_batch(data_train, args.batch_size, cfg["block_size"], rng)
-        _, perte, cache = forward(P, cfg, x, y)
-        grads = backward(P, cfg, cache, y)
+        Pe = parametres_effectifs(P, cfg) if args.ternary else P
+        _, perte, cache = forward(Pe, cfg, x, y)
+        grads = backward(Pe, cfg, cache, y)          # grads quantifiés = STE (dW_eff → maître)
         clip_gradient(grads, args.clip)
         opt.step(grads, lr)
         if step % args.log_every == 0 or step == args.max_steps:
-            pv = float(np.mean([forward(P, cfg, *prendre_batch(data_val, args.batch_size, cfg["block_size"], rng))[1] for _ in range(10)]))
+            Pev = parametres_effectifs(P, cfg) if args.ternary else P
+            pv = float(np.mean([forward(Pev, cfg, *prendre_batch(data_val, args.batch_size, cfg["block_size"], rng))[1] for _ in range(10)]))
             tok_s = int(args.batch_size * cfg["block_size"] * (step + 1) / (time.time() - debut))
             print(f"{step:>6} | {perte:>11.4f} | {pv:>10.4f} | {lr:>8.2e} | {tok_s:>7}")
             historique.append((step, float(perte), pv))
@@ -474,6 +621,7 @@ def entrainer(args):
     vals = [r[2] for r in historique[1:]]
     trs = [r[1] for r in historique[1:]]
     resume = {"types": types, "seed": args.seed, "params": n_par,
+              "ternary": bool(args.ternary),
               "val_min": min(vals), "val_min_step": historique[1:][int(np.argmin(vals))][0],
               "val_final": vals[-1], "train_final": trs[-1],
               "kv_cache_octets_par_token": sum(2 * cfg["d_model"] * 4 for t in types if t == "smax")}
@@ -500,14 +648,30 @@ def main():
     ap.add_argument("--clip", type=float, default=1.0)
     ap.add_argument("--log-every", type=int, default=100)
     ap.add_argument("--seed", type=int, default=1337)
+    ap.add_argument("--ternary", action="store_true",
+                    help="entraînement avec poids des matmuls ternarisés (BitNet b1.58, STE)")
+    ap.add_argument("--check-ternary", action="store_true",
+                    help="garde-fou C4 : quantificateur + FD wrt poids effectifs")
+    ap.add_argument("--quantize-after", default=None, metavar="CKPT",
+                    help="bras B : ternariser un checkpoint float sans ré-entraînement, évaluer")
+    ap.add_argument("--export-ternary", default=None, metavar="CKPT",
+                    help="exporter P_eff (γ·Q + échelles) pour le profileur")
+    ap.add_argument("--out-ternary", default="results/c4/checkpoint_ternaire.npz")
     args = ap.parse_args()
     if args.check_grads:
         ok = verifier_gradients(args)
         raise SystemExit(0 if ok else 1)
+    elif args.check_ternary:
+        ok = verifier_ternaire(args)
+        raise SystemExit(0 if ok else 1)
+    elif args.quantize_after:
+        quantifier_apres(args)
+    elif args.export_ternary:
+        exporter_ternaire(args)
     elif args.train:
         entrainer(args)
     else:
-        print("Modes : --check-grads (obligatoire) puis --train")
+        print("Modes : --check-grads puis --check-ternary (obligatoires) puis --train [--ternary]")
 
 if __name__ == "__main__":
     main()
