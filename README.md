@@ -16,7 +16,8 @@ Recherche menée en **cycles complets et traçables** (méthode « get-research-
 | C2 | Bruit de seed (3×3) + profilage d'inférence batch-1 | H0, H1b | ✅ terminé — H1b infirmée, H4 ouverte |
 | C3 | Delta rule : l'état qui remplace au lieu d'additionner | H2, H4b | ✅ terminé — H2 confirmée (dlind **dépasse** smax : 1.8976 vs 2.1448), H4b confirmée |
 | C4 | Ternarisation façon BitNet : entraîner avec {-1, 0, +1} | H3 | ✅ terminé — H3 confirmée (Δ +0.018 nat, sous le bruit ; quantify-after : +2.09 ≈ hasard ; mémoire ×7.3) |
-| C5 | Profondeur : les gains survivent-ils à 4 couches ? | H5, H6, H4c | 🔎 en cours |
+| C5 | Profondeur : les gains survivent-ils à 4 couches ? | H5, H6, H4c | ✅ terminé — H5 confirmée (amplifiée : −0.333 nat), H4c confirmée (−0.70), H6 infirmée de justesse (+0.057, effet budget) |
+| C6 | Budget : le coût du ternaire à 4 couches est-il un artefact de budget ? | H6b | à venir |
 
 ## Arborescence
 

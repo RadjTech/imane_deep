@@ -1,0 +1,55 @@
+{
+ "types": [
+  "dlind",
+  "dlind",
+  "dlind",
+  "dlind"
+ ],
+ "ckpt": "results/c5_dlind4_s1337/checkpoint.npz",
+ "equivalence_max_diff": 6.198883056640625e-06,
+ "v_gen_dans_distribution": {
+  "16": {
+   "tok_s": 1319.4,
+   "prefill_tok_s": 1422.9,
+   "kv_a_mi_trajet_octets": 0
+  },
+  "48": {
+   "tok_s": 1330.9,
+   "prefill_tok_s": 1293.1,
+   "kv_a_mi_trajet_octets": 0
+  },
+  "96": {
+   "tok_s": 1336.0,
+   "prefill_tok_s": 1379.5,
+   "kv_a_mi_trajet_octets": 0
+  }
+ },
+ "v_gen_naive_fenetre": null,
+ "scaling_mecanisme": {
+  "256": {
+   "prefill_tok_s": 1355.2,
+   "v_gen_tok_s": 1362.6,
+   "kv_octets": 0
+  },
+  "1024": {
+   "prefill_tok_s": 1303.2,
+   "v_gen_tok_s": 1328.9,
+   "kv_octets": 0
+  },
+  "4096": {
+   "prefill_tok_s": 1199.8,
+   "v_gen_tok_s": 1312.5,
+   "kv_octets": 0
+  }
+ },
+ "memoire": {
+  "poids_octets": 1856704,
+  "etat_lin_octets": 38400,
+  "kv_octets": 0
+ },
+ "memoire_kv_4096": {
+  "poids_octets": 1856704,
+  "etat_lin_octets": 38400,
+  "kv_octets": 0
+ }
+}

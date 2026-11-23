@@ -1,0 +1,16 @@
+{
+ "types": [
+  "smax",
+  "smax",
+  "smax",
+  "smax"
+ ],
+ "seed": 2024,
+ "params": 464160,
+ "ternary": false,
+ "val_min": 2.1926212310791016,
+ "val_min_step": 600,
+ "val_final": 2.59442138671875,
+ "train_final": 0.9196843504905701,
+ "kv_cache_octets_par_token": 3072
+}

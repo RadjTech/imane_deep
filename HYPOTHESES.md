@@ -51,4 +51,8 @@
 ## H4c — Le régulariseur survit à la profondeur (C5)
 - **Énoncé** : l'effet H4/H4b (l'état borne la mémorisation) persiste quand la capacité double.
 - **Critère** : mean(val@1200)(`dlind`×4 float) ≤ mean(val@1200)(`smax`×4) − **0.2 nat** → confirmée ; sinon → infirmée.
-- **Statuts** : à tester (C5, seeds {1337, 2024, 777}, protocole commité avant les runs).
+- **Statuts** :
+  - **H5 : ✅ confirmée (3 seeds, C5)** — mean(val_min)(`dlind`×4) = **1.8441 ± 0.0122** ≤ mean(`smax`×4) = 2.1766, écart **−0.333** ≫ bruit (0.0244) : supériorité **amplifiée** par la profondeur (−0.247 à 2 couches → −0.333 à 4). La profondeur aide la delta rule (−0.054 vs 2 couches) et nuit au softmax (val_min au pas 500–600, val@1200 2.58).
+  - **H4c : ✅ confirmée (3 seeds, C5)** — écart val@1200 **−0.697** (amplifié : −0.56 à 2 couches) ; pente de surapprentissage +0.403 (smax×4) vs +0.039 (dlind×4) vs **+0.007** (ternaire).
+  - **H6 : ❌ infirmée de justesse (3 seeds, C5)** — Δ_tern = **+0.057** > 0.05 (contre +0.018 à 2 couches). Effet budget consigné : les 3 runs ternaires atteignent leur val_min tard (pas 1100–1200, s2024 au dernier pas, encore en descente) — à trancher en C6 (budget étendu).
+- Voir `RESEARCH_LOG.md` cycle C5.

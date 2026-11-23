@@ -1,0 +1,55 @@
+{
+ "types": [
+  "smax",
+  "smax",
+  "smax",
+  "smax"
+ ],
+ "ckpt": "results/c5_smax4_s1337/checkpoint.npz",
+ "equivalence_max_diff": 1.7523765563964844e-05,
+ "v_gen_dans_distribution": {
+  "16": {
+   "tok_s": 1603.4,
+   "prefill_tok_s": 1664.3,
+   "kv_a_mi_trajet_octets": 141312
+  },
+  "48": {
+   "tok_s": 1540.3,
+   "prefill_tok_s": 1652.3,
+   "kv_a_mi_trajet_octets": 239616
+  },
+  "96": {
+   "tok_s": 921.1,
+   "prefill_tok_s": 865.6,
+   "kv_a_mi_trajet_octets": 387072
+  }
+ },
+ "v_gen_naive_fenetre": 65.9,
+ "scaling_mecanisme": {
+  "256": {
+   "prefill_tok_s": 1073.4,
+   "v_gen_tok_s": 1187.0,
+   "kv_octets": 786432
+  },
+  "1024": {
+   "prefill_tok_s": 1079.7,
+   "v_gen_tok_s": 776.4,
+   "kv_octets": 3145728
+  },
+  "4096": {
+   "prefill_tok_s": 435.8,
+   "v_gen_tok_s": 243.6,
+   "kv_octets": 12582912
+  }
+ },
+ "memoire": {
+  "poids_octets": 1856640,
+  "etat_lin_octets": 0,
+  "kv_octets": 294912
+ },
+ "memoire_kv_4096": {
+  "poids_octets": 1856640,
+  "etat_lin_octets": 0,
+  "kv_octets": 12582912
+ }
+}

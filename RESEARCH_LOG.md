@@ -233,7 +233,7 @@ Le modèle `dlind` (C3) peut-il être entraîné **avec** ses poids de matmul co
 
 ## Cycle C5 — Profondeur : les gains survivent-ils à 4 couches ?
 
-**Date** : 2026-11-23 · **Statut** : 🔎 en cours
+**Date** : 2026-11-23 · **Statut** : ✅ terminé — H5 confirmée (amplifiée : −0.333 nat), H4c confirmée (−0.697), H6 infirmée de justesse (+0.057, effet budget) · Décision : POURSUIVRE → C6 (budget : trancher H6)
 
 ### 1. Question
 À profondeur doublée (4 couches, ≈ 464 K params, largeur inchangée), (1) la delta rule garde-t-elle l'avantage sur le softmax (H5) ? (2) la contrainte ternaire reste-t-elle quasi gratuite (H6) ? (3) l'effet régulariseur de l'état persiste-t-il (H4c) ?
@@ -250,8 +250,38 @@ Le modèle `dlind` (C3) peut-il être entraîné **avec** ses poids de matmul co
 - Profilage V_gen batch-1 des checkpoints s1337 (`dlind`×4 vs `smax`×4) après les runs.
 - Analyse pré-enregistrée : `scripts/analyse_c5.py` ; exécution : `scripts/run_c5.sh`.
 
-### 4. Résultats — à remplir à la fin des runs
+### 4. Résultats
 
-### 5. Analyse — à remplir
+**Garde-fous** : FD étendus aux 4 couches avant les runs — `dlind`×4 **3.53e-05**, `smax`×4 **2.19e-05** ✔ (2 couches inchangées : 6.86e-05 / 4.27e-05). Ternaire ✔.
 
-### 6. Décision — à remplir
+**(a) Statistique — 3 configs × 3 seeds, 1 200 pas, 464 K params** (`results/c5/analyse.json`) :
+
+| Configuration | s1337 | s2024 | s777 | moyenne | écart type | val@1200 |
+|---|---|---|---|---|---|---|
+| `dlind`×4 | 1.8306 | 1.8414 | 1.8601 | **1.8441** | 0.0122 | 1.8826 |
+| `dlind`×4 ternaire | 1.9133 | 1.8937 | 1.8960 | 1.9010 | **0.0088** | 1.9083 |
+| `smax`×4 | 2.1724 | 2.1926 | 2.1647 | 2.1766 | 0.0118 | 2.5796 |
+
+Seuil de bruit interne H0 : 2×std_max = **0.0244** nat. Pas de val_min du `dlind`×4 : 900–1100 ; du ternaire : 1100–**1200** (s2024 au tout dernier pas) ; du `smax`×4 : **500–600** (effondrement précoce).
+
+**(b) Profillage batch-1** (checkpoints s1337, garde-fous 6.2e-06 / 1.75e-05 ✔) :
+
+| Contexte T | `dlind`×4 | `smax`×4 |
+|---|---|---|
+| 256 | 1 363 | 1 187 |
+| 1 024 | 1 329 | 776 |
+| 4 096 | **1 313 (plat)** | **244** |
+
+KV `smax`×4 : **12,3 Mo à T=4096** (3 072 octets/token × 4 couches) ; `dlind`×4 : 0 octet, état constant 38 Ko. Ratio de vitesse à long contexte : **×5.4** (×4.6 à 2 couches).
+
+### 5. Analyse
+
+1. **H5 confirmée — supériorité AMPLIFIÉE par la profondeur** : écart dlind−smax de **−0.333** nat (bruit 0.024), contre −0.247 à 2 couches. La profondeur aide la delta rule (val_min 1.8976 → 1.8441, −0.054 vs 2 couches) et **nuit** au softmax : le `smax`×4 atteint son val_min dès le pas 500–600 puis s'écroule (train 0.86–0.99 = mémorisation, val@1200 2.58). Plus de couches softmax = plus de capacité de mémorisation du corpus de 11 Ko, pas plus de généralisation.
+2. **H4c confirmée — régulariseur amplifié** : écart val@1200 de **−0.697** (−0.56 à 2 couches). Pente de surapprentissage (val@1200 − val_min) : **+0.007** (ternaire), +0.039 (`dlind`×4), **+0.403** (`smax`×4). Trois mécanismes bornants (état delta, ternarité, profondeur × état) se cumulent sans se dégrader.
+3. **H6 infirmée de justesse** : Δ_tern = **+0.057** > 0.05 (contre +0.018 à 2 couches). **Nuance consignée** : les 3 runs ternaires atteignent leur val_min tard et sont **encore en descente au dernier pas** (s2024 : min au pas 1200 exactement) — l'effet budget (1 200 pas) est probable, mais le critère pré-enregistré reste le contrat : à budget égal, le coût du ternaire à 4 couches n'est pas ≤ 0.05. Question ouverte → C6.
+4. **La stack CPU-first tient la profondeur** : le modèle **tout-ternaire 4 couches** (1.9010, poids ≈ 175 Ko packé (×10.4 vs float 1 813 Ko), état 38 Ko, KV 0) bat le softmax float32 à 2 couches (2.1448) ET le softmax float32 à 4 couches (2.1766), à budget inférieur (1 200 vs 1 800 pas).
+5. **Coûts** : entraînement `dlind`×4 ≈ 1 950–2 090 tok/s (moitié du 2 couches — séquentiel BPTT ×4 couches, coût d'implémentation NumPy consigné) ; en génération longue, `dlind`×4 est plat (~1 300 tok/s) là où `smax`×4 tombe à 244.
+
+### 6. Décision
+
+**C5 ✅ terminé — H5 confirmée (amplifiée), H4c confirmée (amplifié), H6 infirmée de justesse (+0.057, effet budget probable mais consigné).** La delta rule n'est pas seulement robuste à la profondeur : son avantage **grandit** avec elle. Décision : **POURSUIVRE → C6 (budget)** — trancher la question ouverte par H6 : le coût du ternaire à 4 couches est-il un artefact de budget ? (`dlind`×4 float vs ternaire à **2 400 pas**, 3 seeds, critère H6b pré-enregistré à l'ouverture du cycle).

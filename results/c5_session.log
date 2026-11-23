@@ -1,0 +1,72 @@
+=== GARDE-FOUS (protocole étape 4) ===
+[GARDE-FOU] vérification des gradients (float64, types=['lin', 'smax'])...
+Plus grand écart relatif (lin+smax) : 6.86e-05
+[GARDE-FOU] vérification des gradients (float64, types=['dlind', 'dlind'])...
+Plus grand écart relatif (dlind+dlind) : 4.27e-05
+[GARDE-FOU] vérification des gradients (float64, types=['dlind', 'dlind', 'dlind', 'dlind'])...
+Plus grand écart relatif (dlind+dlind+dlind+dlind) : 3.53e-05
+[GARDE-FOU] vérification des gradients (float64, types=['smax', 'smax', 'smax', 'smax'])...
+Plus grand écart relatif (smax+smax+smax+smax) : 2.19e-05
+=> BACKWARD VALIDÉ ✔
+  quantificateur (64, 32) : valeurs [np.float64(-1.0), np.float64(-0.0), np.float64(1.0)] | γ=0.0796 | ✔
+  quantificateur (10,) : valeurs [np.float64(-1.0), np.float64(-0.0), np.float64(1.0)] | γ=0.0907 | ✔
+  quantificateur (5, 1) : valeurs [np.float64(-1.0), np.float64(-0.0), np.float64(1.0)] | γ=0.0632 | ✔
+  quantificateur tenseur nul : W_eff=0, γ>0 ✔ (garde)
+Plus grand écart relatif FD sur P_eff (dlind,dlind) : 0.00e+00 (plancher absolu 1e-8)
+(c) transfert STE (dW_eff → W maître) : par construction, non vérifiable par FD — consigné
+=> TERNAIRE VALIDÉ ✔
+=== RUN c5_dlind4_s1337 ===
+[HYBRIDE types=['dlind', 'dlind', 'dlind', 'dlind']] corpus 11,172 car. | V=77 | params 464,176 | seed 1337
+     0 |      4.3531 |     4.3583 | 1.00e-05 |     402
+   600 |      1.6582 |     1.9135 | 6.14e-04 |    1995
+  1200 |      1.2029 |     1.8568 | 1.00e-04 |    1945
+RÉSUMÉ : {"types": ["dlind", "dlind", "dlind", "dlind"], "seed": 1337, "params": 464176, "ternary": false, "val_min": 1.8306090831756592, "val_min_step": 900, "val_final": 1.856763243675232, "train_final": 1.2028652429580688, "kv_cache_octets_par_token": 0}
+=== RUN c5_dlind4_s2024 ===
+[HYBRIDE types=['dlind', 'dlind', 'dlind', 'dlind']] corpus 11,172 car. | V=77 | params 464,176 | seed 2024
+     0 |      4.3504 |     4.3541 | 1.00e-05 |     439
+   600 |      1.6992 |     1.9400 | 6.14e-04 |    1991
+  1200 |      1.1830 |     1.8614 | 1.00e-04 |    1936
+RÉSUMÉ : {"types": ["dlind", "dlind", "dlind", "dlind"], "seed": 2024, "params": 464176, "ternary": false, "val_min": 1.841412901878357, "val_min_step": 1100, "val_final": 1.8614006042480469, "train_final": 1.1829642057418823, "kv_cache_octets_par_token": 0}
+=== RUN c5_dlind4_s777 ===
+[HYBRIDE types=['dlind', 'dlind', 'dlind', 'dlind']] corpus 11,172 car. | V=77 | params 464,176 | seed 777
+     0 |      4.3451 |     4.3444 | 1.00e-05 |     431
+   600 |      1.7112 |     1.9126 | 6.14e-04 |    2010
+  1200 |      1.2140 |     1.9297 | 1.00e-04 |    1951
+RÉSUMÉ : {"types": ["dlind", "dlind", "dlind", "dlind"], "seed": 777, "params": 464176, "ternary": false, "val_min": 1.8601293563842773, "val_min_step": 900, "val_final": 1.9297336339950562, "train_final": 1.2139774560928345, "kv_cache_octets_par_token": 0}
+=== RUN c5_smax4_s1337 ===
+[HYBRIDE types=['smax', 'smax', 'smax', 'smax']] corpus 11,172 car. | V=77 | params 464,160 | seed 1337
+     0 |      4.3480 |     4.3518 | 1.00e-05 |     502
+   600 |      1.6969 |     2.2025 | 6.14e-04 |    2644
+  1200 |      0.8647 |     2.6023 | 1.00e-04 |    2583
+RÉSUMÉ : {"types": ["smax", "smax", "smax", "smax"], "seed": 1337, "params": 464160, "ternary": false, "val_min": 2.172377347946167, "val_min_step": 500, "val_final": 2.602277994155884, "train_final": 0.8647355437278748, "kv_cache_octets_par_token": 3072}
+=== RUN c5_smax4_s2024 ===
+[HYBRIDE types=['smax', 'smax', 'smax', 'smax']] corpus 11,172 car. | V=77 | params 464,160 | seed 2024
+     0 |      4.3493 |     4.3504 | 1.00e-05 |     517
+   600 |      1.7456 |     2.1926 | 6.14e-04 |    2631
+  1200 |      0.9197 |     2.5944 | 1.00e-04 |    2558
+RÉSUMÉ : {"types": ["smax", "smax", "smax", "smax"], "seed": 2024, "params": 464160, "ternary": false, "val_min": 2.1926212310791016, "val_min_step": 600, "val_final": 2.59442138671875, "train_final": 0.9196843504905701, "kv_cache_octets_par_token": 3072}
+=== RUN c5_smax4_s777 ===
+[HYBRIDE types=['smax', 'smax', 'smax', 'smax']] corpus 11,172 car. | V=77 | params 464,160 | seed 777
+     0 |      4.3502 |     4.3413 | 1.00e-05 |     508
+   600 |      1.8160 |     2.1647 | 6.14e-04 |    2639
+  1200 |      0.9869 |     2.5421 | 1.00e-04 |    2605
+RÉSUMÉ : {"types": ["smax", "smax", "smax", "smax"], "seed": 777, "params": 464160, "ternary": false, "val_min": 2.1646695137023926, "val_min_step": 600, "val_final": 2.542053461074829, "train_final": 0.9868643879890442, "kv_cache_octets_par_token": 3072}
+=== RUN c5_dlind4tern_s1337 ===
+[HYBRIDE types=['dlind', 'dlind', 'dlind', 'dlind']] [TERNAIRE matmuls : γ·Q, STE] corpus 11,172 car. | V=77 | params 464,176 | seed 1337
+     0 |      4.3640 |     4.3723 | 1.00e-05 |     443
+   600 |      1.8963 |     2.0183 | 6.14e-04 |    2065
+  1200 |      1.6037 |     1.9176 | 1.00e-04 |    2046
+RÉSUMÉ : {"types": ["dlind", "dlind", "dlind", "dlind"], "seed": 1337, "params": 464176, "ternary": true, "val_min": 1.9133212566375732, "val_min_step": 1100, "val_final": 1.9175879955291748, "train_final": 1.6037143468856812, "kv_cache_octets_par_token": 0}
+=== RUN c5_dlind4tern_s2024 ===
+[HYBRIDE types=['dlind', 'dlind', 'dlind', 'dlind']] [TERNAIRE matmuls : γ·Q, STE] corpus 11,172 car. | V=77 | params 464,176 | seed 2024
+     0 |      4.3622 |     4.3671 | 1.00e-05 |     458
+   600 |      1.9431 |     2.0106 | 6.14e-04 |    2093
+  1200 |      1.5812 |     1.8937 | 1.00e-04 |    2084
+RÉSUMÉ : {"types": ["dlind", "dlind", "dlind", "dlind"], "seed": 2024, "params": 464176, "ternary": true, "val_min": 1.8936548233032227, "val_min_step": 1200, "val_final": 1.8936548233032227, "train_final": 1.5811611413955688, "kv_cache_octets_par_token": 0}
+=== RUN c5_dlind4tern_s777 ===
+[HYBRIDE types=['dlind', 'dlind', 'dlind', 'dlind']] [TERNAIRE matmuls : γ·Q, STE] corpus 11,172 car. | V=77 | params 464,176 | seed 777
+     0 |      4.3525 |     4.3521 | 1.00e-05 |     417
+   600 |      1.9235 |     2.0078 | 6.14e-04 |    2077
+  1200 |      1.6263 |     1.9137 | 1.00e-04 |    2053
+RÉSUMÉ : {"types": ["dlind", "dlind", "dlind", "dlind"], "seed": 777, "params": 464176, "ternary": true, "val_min": 1.8960380554199219, "val_min_step": 1100, "val_final": 1.9137442111968994, "train_final": 1.6262918710708618, "kv_cache_octets_par_token": 0}
+✔ runs C5 terminés

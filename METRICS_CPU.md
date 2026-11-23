@@ -54,6 +54,16 @@
 
 *Note ternaire : V_gen mesurée sur poids effectifs γ·Q en float32 (NumPy n'a pas de kernels entiers — le gain add-only de la littérature, 2.4–6×, est hors périmètre NumPy, consigné).*
 
+**Profondeur (C5 — 4 couches, 464 K params, 1 200 pas, comparaisons internes au cycle)** :
+
+| Configuration | Q (val_min) | Q@1200 (régime sur-appris) | M@T=4096 | V_gen @T=4096 |
+|---|---|---|---|---|
+| `dlind`×4 | **1.8441 ± 0.0122** | **1.8826** | état 38 Ko, KV 0 | **1 313 (plat)** |
+| `dlind`×4 ternaire | 1.9010 ± 0.0088 | 1.9083 | état 38 Ko + poids ≈ 175 Ko packé (×10.4) | ≈ idem float (kernels entiers hors NumPy) |
+| `smax`×4 | 2.1766 ± 0.0118 | 2.5796 | KV **12,3 Mo** (croît) | 244 |
+
+La profondeur **amplifie** les effets : écart dlind−smax −0.247 → **−0.333** ; régularisation −0.56 → **−0.70** ; le tout-ternaire 4 couches bat le softmax float32 (2 et 4 couches) avec ~213 Ko de mémoire totale de travail (poids packés + état).
+
 KV-cache incrémental vs génération naïve : **×18,6** (140,7 → 2 610 tok/s). Le profil O(1) du linéaire et la décroissance O(T) du softmax sont maintenant des mesures, pas des prédictions.
 
 *Note honnête : V_train NumPy n'est pas une métrique concept (les outer-products `lin` ne sont pas des matmuls BLAS). Les V_gen ci-dessus sont des mesures réelles du profileur (`results/profile_inf_*.json`).*
