@@ -3,50 +3,50 @@
   "dlind",
   "dlind"
  ],
- "ckpt": "results/c3_dlind-dlind_s1337/checkpoint.npz",
- "equivalence_max_diff": 9.179115295410156e-06,
+ "ckpt": "results/c4/checkpoint_ternaire_s1337.npz",
+ "equivalence_max_diff": 5.245208740234375e-06,
  "v_gen_dans_distribution": {
   "16": {
-   "tok_s": 2133.9,
-   "prefill_tok_s": 1808.9,
+   "tok_s": 2353.5,
+   "prefill_tok_s": 2677.9,
    "kv_a_mi_trajet_octets": 0
   },
   "48": {
-   "tok_s": 1669.6,
-   "prefill_tok_s": 1728.2,
+   "tok_s": 2617.5,
+   "prefill_tok_s": 2538.9,
    "kv_a_mi_trajet_octets": 0
   },
   "96": {
-   "tok_s": 1876.2,
-   "prefill_tok_s": 1763.0,
+   "tok_s": 2614.6,
+   "prefill_tok_s": 2676.4,
    "kv_a_mi_trajet_octets": 0
   }
  },
  "v_gen_naive_fenetre": null,
  "scaling_mecanisme": {
   "256": {
-   "prefill_tok_s": 2091.0,
-   "v_gen_tok_s": 2403.8,
+   "prefill_tok_s": 2589.4,
+   "v_gen_tok_s": 2570.6,
    "kv_octets": 0
   },
   "1024": {
-   "prefill_tok_s": 2260.6,
-   "v_gen_tok_s": 1789.1,
+   "prefill_tok_s": 2627.2,
+   "v_gen_tok_s": 2532.2,
    "kv_octets": 0
   },
   "4096": {
-   "prefill_tok_s": 2597.5,
-   "v_gen_tok_s": 2582.9,
+   "prefill_tok_s": 2548.6,
+   "v_gen_tok_s": 2627.6,
    "kv_octets": 0
   }
  },
  "memoire": {
-  "poids_octets": 961952,
+  "poids_octets": 961984,
   "etat_lin_octets": 19200,
   "kv_octets": 0
  },
  "memoire_kv_4096": {
-  "poids_octets": 961952,
+  "poids_octets": 961984,
   "etat_lin_octets": 19200,
   "kv_octets": 0
  }

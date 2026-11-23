@@ -1,0 +1,1 @@
+RÉSUMÉ : {"ckpt": "results/c3_dlind-dlind_s1337/checkpoint.npz", "eval": "fenêtres fixes sur val entière", "val_float_fixe": 2.0581, "val_ternaire_fixe": 4.1899, "delta_ternaire": 2.1318}

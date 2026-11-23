@@ -174,7 +174,7 @@ KV-cache **0 octet** (état constant 19 Ko) — profil plat comme le linéaire, 
 
 ## Cycle C4 — Ternarisation façon BitNet : la qualité en 2 bits ?
 
-**Date** : 2026-11-23 · **Statut** : 🔎 en cours
+**Date** : 2026-11-23 · **Statut** : ✅ terminé — H3 confirmée (Δ_A +0.018 nat, sous le bruit ; Δ_B +2.085, hasard) · Décision : POURSUIVRE → C5 (profondeur, 4 couches)
 
 ### 1. Question
 Le modèle `dlind` (C3) peut-il être entraîné **avec** ses poids de matmul contraints à {−1, 0, +1} (échelle γ par tenseur, straight-through estimator) en gardant une val proche du float — et la quantification a posteriori du même checkpoint est-elle bien pire, comme l'affirme la littérature BitNet (la ternarité doit être *dans* l'entraînement, pas après) ?
@@ -191,8 +191,40 @@ Le modèle `dlind` (C3) peut-il être entraîné **avec** ses poids de matmul co
 - **Mémoire** mesurée depuis le checkpoint : 2 bits/paramètre ternaire packé + 4 octets d'échelle par tenseur + reste en float32. **Profilage** V_gen du checkpoint ternaire exporté (s1337, γ·Q + échelles).
 - Analyse pré-enregistrée : `scripts/analyse_c4.py` ; exécution : `scripts/run_c4.sh`.
 
-### 4. Résultats — à remplir à la fin des runs
+### 4. Résultats
 
-### 5. Analyse — à remplir
+**Garde-fous** : float `--check-grads` 4.27e-05 ✔ (régression) ; ternaire `--check-ternary` ✔ — quantificateur testé unitairement, FD du backward par rapport aux poids effectifs **0.00e+00**, transfert STE consigné comme par construction (le quantificateur est localement constant, le FD ne peut le valider).
 
-### 6. Décision — à remplir
+**(a) Bras A — entraînement DANS la contrainte** (3 seeds, val_min, eval d'entraînement, `results/c4/analyse.json`) :
+
+| | s1337 | s2024 | s777 | moyenne | écart type |
+|---|---|---|---|---|---|
+| val_min (ternaire) | 1.9095 | 1.9039 | 1.9329 | **1.9154** | 0.0125 |
+| val@1800 (ternaire) | 1.9317 | 1.9039 | 1.9684 | **1.9347** | 0.026 |
+| *rappel float C3* | *1.8931* | *1.8873* | *1.9124* | *1.8976* | *0.0131* |
+
+**Δ_A = +0.0178 nat** — sous le seuil d'interprétabilité H0 (2×0.0131 = 0.0262) : à ce scale, l'entraînement ternaire est **indistinguable du float** sur val_min.
+
+**(b) Bras B — quantification a posteriori** (checkpoints float C3 ternarisés sans ré-entraînement, eval fixe apparié) :
+
+| ckpt | val float (eval fixe) | val ternaire | Δ |
+|---|---|---|---|
+| s1337 | 2.0581 | 4.1899 | **+2.1318** |
+| s2024 | 2.0747 | 4.1407 | **+2.0660** |
+| s777 | 2.1128 | 4.1709 | **+2.0581** |
+
+**Δ_B = +2.0853 nat** en moyenne — val ≈ 4.14–4.19, au niveau du hasard (ln 77 = 4.34). Les 3 seeds sont d'accord (±0.04).
+
+**(c) Mémoire et vitesse** (`results/c4/checkpoint_ternaire_s1337.npz`, garde-fou profileur 5.25e-06 ✔) : poids **939.4 Ko (float32) → 129.4 Ko packé (×7.3)** ; les poids de matmul seuls : 884.7 → 54.6 Ko (**×16.2**, 2 bits/param + échelles). V_gen plate à long contexte (2 533–2 628 tok/s @T=256..4096, KV 0) — identique au float dans NumPy : le gain « multiplications → additions entières » requiert des kernels entiers hors périmètre NumPy, consigné.
+
+### 5. Analyse
+
+1. **H3 confirmée massivement** : Δ_A = 0.0178 < Δ_B/2 = 1.0427. Et plus fort que le critère : Δ_A est **sous le seuil de bruit** (H0) — la contrainte {-1, 0, +1} ne coûte rien de mesurable à ce scale, contre +2.09 nat pour la quantification a posteriori. La ternarité doit être **dans** l'entraînement : confirmation expérimentale de la littérature BitNet sur notre stack.
+2. **Bonus régulariseur (H4 étendue)** : le plafond d'entraînement ternaire est plus bas (train_final 1.43–1.59 vs 0.98–1.07 float) — les matmuls ternaires ne peuvent pas mémoriser aussi finement — mais la val@1800 est **meilleure** que le float (1.9347 vs 2.0281) : pente de surapprentissage **+0.019** contre +0.13 (dlind float) et +0.97 (smax). Trois mécanismes bornants se cumulent : état delta, ternarité, et leur combinaison sur-apprend à peine.
+3. **Entraînement plus lent à converger** : s2024 atteint son val_min AU pas 1800 (encore en descente). À protocole figé (1 800 pas, non modifiable), le ternaire ne perd que 0.018 nat ; plus de pas pourrait combler le reste — consigné sans changement de protocole.
+4. **La mission CPU-first est maintenant assemblée** : qualité > softmax (C3) + 2 bits/poids (C4) + état constant 19 Ko + KV 0 octet + poids 129 Ko. Le modèle complet tient dans **~148 Ko** de mémoire de travail et bat l'attention softmax float32 sur ce périmètre.
+5. **Périmètre** : corpus 11 Ko, modèle 240 K — ceci valide la *méthode* (train-within > quantize-after, γ·Q + STE) sur notre stack, pas les claims d'échelle de BitNet (2B-4T tokens). Le gain de vitesse add-only (2.4–6× dans la littérature) est un candidat de cycle « kernels entiers ».
+
+### 6. Décision
+
+**C4 ✅ terminé — H3 confirmée (3/3 seeds, les deux critères secondaires inclus).** La stack CPU-first complète est validée pièce par pièce : delta rule (C3) + ternarité dans l'entraînement (C4). Décision : **POURSUIVRE → C5 (profondeur)** — la delta rule et la ternarité survivent-elles à 4 couches ? (question ouverte depuis C2 : « la carte des ratios à 4 couches » ; l'ablation de profondeur teste si les gains C3/C4 tiennent à l'échelle du modèle, avec les baselines `smax`×4 correspondantes).

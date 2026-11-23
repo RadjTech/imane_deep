@@ -1,0 +1,55 @@
+{
+ "bras_A": {
+  "seeds": [
+   1337,
+   2024,
+   777
+  ],
+  "val_min": [
+   1.9095485210418701,
+   1.9039121866226196,
+   1.9328800439834595
+  ],
+  "val_1800": [
+   1.9316539764404297,
+   1.9039121866226196,
+   1.9683971405029297
+  ],
+  "mean": 1.9154,
+  "std": 0.0125,
+  "delta_A": 0.0178
+ },
+ "bras_B": [
+  {
+   "ckpt": "results/c3_dlind-dlind_s1337/checkpoint.npz",
+   "val_float_fixe": 2.0581,
+   "val_ternaire_fixe": 4.1899,
+   "delta": 2.1318
+  },
+  {
+   "ckpt": "results/c3_dlind-dlind_s2024/checkpoint.npz",
+   "val_float_fixe": 2.0747,
+   "val_ternaire_fixe": 4.1407,
+   "delta": 2.066
+  },
+  {
+   "ckpt": "results/c3_dlind-dlind_s777/checkpoint.npz",
+   "val_float_fixe": 2.1128,
+   "val_ternaire_fixe": 4.1709,
+   "delta": 2.0581
+  }
+ ],
+ "delta_B": 2.0853,
+ "memoire": {
+  "params_total": 240488,
+  "params_ternaire": 221184,
+  "octets_float": 961952,
+  "octets_ternaire": 132544,
+  "ratio": 7.26
+ },
+ "verdicts": {
+  "H3": "confirmée",
+  "secondaire_delta_A_lt_0.15": true,
+  "secondaire_delta_B_gt_0.30": true
+ }
+}

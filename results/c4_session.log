@@ -1,0 +1,26 @@
+=== RUN c4_dlind-dlind_tern_s1337 ===
+[HYBRIDE types=['dlind', 'dlind']] [TERNAIRE matmuls : γ·Q, STE] corpus 11,172 car. | V=77 | params 240,488 | seed 1337
+     0 |      4.3637 |     4.3666 | 1.00e-05 |     786
+  1000 |      1.7415 |     1.9607 | 5.08e-04 |    4196
+  1800 |      1.4284 |     1.9317 | 1.00e-04 |    4075
+RÉSUMÉ : {"types": ["dlind", "dlind"], "seed": 1337, "params": 240488, "ternary": true, "val_min": 1.9095485210418701, "val_min_step": 1300, "val_final": 1.9316539764404297, "train_final": 1.4284483194351196, "kv_cache_octets_par_token": 0}
+=== RUN c4_dlind-dlind_tern_s2024 ===
+[HYBRIDE types=['dlind', 'dlind']] [TERNAIRE matmuls : γ·Q, STE] corpus 11,172 car. | V=77 | params 240,488 | seed 2024
+     0 |      4.3761 |     4.3628 | 1.00e-05 |     870
+  1000 |      1.7175 |     1.9666 | 5.08e-04 |    4077
+  1800 |      1.5920 |     1.9039 | 1.00e-04 |    3958
+RÉSUMÉ : {"types": ["dlind", "dlind"], "seed": 2024, "params": 240488, "ternary": true, "val_min": 1.9039121866226196, "val_min_step": 1800, "val_final": 1.9039121866226196, "train_final": 1.5920161008834839, "kv_cache_octets_par_token": 0}
+=== RUN c4_dlind-dlind_tern_s777 ===
+[HYBRIDE types=['dlind', 'dlind']] [TERNAIRE matmuls : γ·Q, STE] corpus 11,172 car. | V=77 | params 240,488 | seed 777
+     0 |      4.3653 |     4.3489 | 1.00e-05 |     847
+  1000 |      1.7142 |     1.9473 | 5.08e-04 |    4161
+  1800 |      1.5344 |     1.9684 | 1.00e-04 |    4066
+RÉSUMÉ : {"types": ["dlind", "dlind"], "seed": 777, "params": 240488, "ternary": true, "val_min": 1.9328800439834595, "val_min_step": 1300, "val_final": 1.9683971405029297, "train_final": 1.534354329109192, "kv_cache_octets_par_token": 0}
+=== QUANTIFY-AFTER s1337 (bras B) ===
+RÉSUMÉ : {"ckpt": "results/c3_dlind-dlind_s1337/checkpoint.npz", "eval": "fenêtres fixes sur val entière", "val_float_fixe": 2.0581, "val_ternaire_fixe": 4.1899, "delta_ternaire": 2.1318}
+=== QUANTIFY-AFTER s2024 (bras B) ===
+RÉSUMÉ : {"ckpt": "results/c3_dlind-dlind_s2024/checkpoint.npz", "eval": "fenêtres fixes sur val entière", "val_float_fixe": 2.0747, "val_ternaire_fixe": 4.1407, "delta_ternaire": 2.066}
+=== QUANTIFY-AFTER s777 (bras B) ===
+RÉSUMÉ : {"ckpt": "results/c3_dlind-dlind_s777/checkpoint.npz", "eval": "fenêtres fixes sur val entière", "val_float_fixe": 2.1128, "val_ternaire_fixe": 4.1709, "delta_ternaire": 2.0581}
+Checkpoint ternaire exporté : results/c4/checkpoint_ternaire_s1337.npz (8 échelles)
+✔ runs C4 terminés
