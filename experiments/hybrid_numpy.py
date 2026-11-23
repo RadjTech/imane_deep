@@ -54,8 +54,18 @@ def layer_norm_bw(dy, xhat, rstd, g):
     dx = (dxhat - dxhat.mean(-1, keepdims=True) - xhat * (dxhat * xhat).mean(-1, keepdims=True)) * rstd
     return dx, dg, db
 
+# Feature map φ de l'attention linéaire et de la delta rule. Deux versions :
+#   "elu1"       : ELU + 1 (Katharopoulos et al. 2020) — x+1 si x > 0, exp(x) sinon. Défaut.
+#   "historique" : version utilisée en C1–C3 — exp(x)+1 pour x ≤ 0 au lieu de exp(x). Elle saute de
+#                  2 à 1 en zéro et vaut au moins 1 partout. Conservée UNIQUEMENT pour reproduire les
+#                  chiffres de C1–C3 (--phi historique) ; voir RESEARCH_LOG.md, amendement C4.
+# d_phi est commune : la dérivée par morceaux est la même (les différences finies ne voient pas le saut).
+PHI = "elu1"
+
 def phi(x):
-    return np.where(x > 0, x, np.exp(np.minimum(x, 0.0))) + 1.0
+    if PHI == "historique":
+        return np.where(x > 0, x, np.exp(np.minimum(x, 0.0))) + 1.0
+    return np.where(x > 0, x + 1.0, np.exp(np.minimum(x, 0.0)))
 
 def d_phi(x):
     return np.where(x > 0, 1.0, np.exp(np.minimum(x, 0.0)))
@@ -471,15 +481,28 @@ def verifier_gradients(args):
 
 
 def evaluer_fixe(P, cfg, data_val, T):
-    """Évaluation déterministe : fenêtres non chevauchantes sur TOUTE la val (B=1).
-    Contrairement à l'éval d'entraînement (10 batchs tirés), reproductible post-hoc
-    à l'identique — utilisée pour le bras B (quantification a posteriori)."""
-    pertes = []
-    for i in range(0, len(data_val) - T, T):
-        x = data_val[i:i + T][None, :]
-        y = data_val[i + 1:i + T + 1][None, :]
-        pertes.append(float(forward(P, cfg, x, y)[1]))
-    return float(np.mean(pertes))
+    """Évaluation déterministe sur TOUTE la val : fenêtres non chevauchantes de T (B=1), plus une
+    dernière fenêtre plus courte, donc chaque caractère est prédit une seule fois (moyenne pondérée).
+    Contrairement à l'éval d'entraînement (10 batchs tirés), reproductible post-hoc à l'identique et
+    sans tirage aléatoire — utilisée pour choisir checkpoint_best et pour les deux bras de C4."""
+    somme, n, i, L = 0.0, 0, 0, len(data_val)
+    while i < L - 1:
+        r = min(T, L - 1 - i)
+        x = data_val[i:i + r][None, :]
+        y = data_val[i + 1:i + r + 1][None, :]
+        somme += float(forward(P, cfg, x, y)[1]) * r
+        n += r
+        i += r
+    return somme / n
+
+
+def verifier_phi(chemin_ckpt):
+    """Refuse d'évaluer un checkpoint avec une autre φ que celle de son entraînement (resume.json du run)."""
+    rj = os.path.join(os.path.dirname(chemin_ckpt), "resume.json")
+    if os.path.exists(rj):
+        p = json.load(open(rj, encoding="utf-8")).get("phi")
+        if p and p != PHI:
+            raise SystemExit(f"{chemin_ckpt} : entraîné avec φ={p}, évalué avec φ={PHI} — préciser --phi {p}")
 
 
 def verifier_ternaire(args):
@@ -543,8 +566,10 @@ def verifier_ternaire(args):
 
 
 def quantifier_apres(args):
-    """Bras B de H3 : charger un checkpoint float (C3), ternariser SANS ré-entraînement,
-    évaluer avec l'eval fixe. Δ = val_ternaire − val_float sur le MÊME eval déterministe."""
+    """Bras B de H3 : charger un checkpoint float, ternariser SANS ré-entraînement, évaluer avec
+    l'eval fixe. Δ = val_ternaire − val_float sur le MÊME eval déterministe, à effectuer au MÊME
+    point que le bras A (checkpoint_best ou checkpoint final)."""
+    verifier_phi(args.quantize_after)
     P = dict(np.load(args.quantize_after))
     types = [t.strip() for t in args.types.split(",")]
     texte, ids, stoi, itos = charger_donnees(args.data)
@@ -554,12 +579,13 @@ def quantifier_apres(args):
     vf = evaluer_fixe(P, cfg, data_val, cfg["block_size"])
     Pe = parametres_effectifs(P, cfg)
     vt = evaluer_fixe(Pe, cfg, data_val, cfg["block_size"])
-    resume = {"ckpt": args.quantize_after, "eval": "fenêtres fixes sur val entière",
-              "val_float_fixe": round(vf, 4), "val_ternaire_fixe": round(vt, 4),
-              "delta_ternaire": round(vt - vf, 4)}
+    etiquette = "best" if "best" in os.path.basename(args.quantize_after) else "final"
+    resume = {"ckpt": args.quantize_after, "point": etiquette, "eval": "fenêtres fixes, val entière",
+              "phi": PHI, "val_float_fixe": round(vf, 6), "val_ternaire_fixe": round(vt, 6),
+              "delta_ternaire": round(vt - vf, 6)}
     os.makedirs(args.out_dir, exist_ok=True)
     seed = args.seed
-    chemin = os.path.join(args.out_dir, f"quantize_after_s{seed}.json")
+    chemin = os.path.join(args.out_dir, f"quantize_after_{etiquette}_s{seed}.json")
     with open(chemin, "w", encoding="utf-8") as f:
         json.dump(resume, f, indent=1, ensure_ascii=False)
     print("RÉSUMÉ :", json.dumps(resume, ensure_ascii=False))
@@ -567,6 +593,7 @@ def quantifier_apres(args):
 
 def exporter_ternaire(args):
     """Exporte P_eff (poids effectifs γ·Q en float32 + échelles) pour le profileur."""
+    verifier_phi(args.export_ternary)
     P = dict(np.load(args.export_ternary))
     types = [t.strip() for t in args.types.split(",")]
     cfg = {"vocab_size": P["tok_emb"].shape[0], "d_model": args.d_model, "n_head": args.n_head,
@@ -594,11 +621,12 @@ def entrainer(args):
     P = init_params(len(itos), cfg, rng)
     opt = AdamW(P, wd=args.wd)
     os.makedirs(args.out_dir, exist_ok=True)
-    historique = [("step", "perte_train", "perte_val")]
+    historique = [("step", "perte_train", "perte_val", "perte_val_fixe")]
     n_par = sum(v.size for v in P.values())
     prefix = " [TERNAIRE matmuls : γ·Q, STE]" if args.ternary else ""
-    print(f"[HYBRIDE types={types}]{prefix} corpus {len(texte):,} car. | V={len(itos)} | params {n_par:,} | seed {args.seed}")
-    print(f"{'step':>6} | {'perte train':>11} | {'perte val':>10} | {'lr':>8} | {'tok/s':>7}")
+    print(f"[HYBRIDE types={types}]{prefix} φ={PHI} corpus {len(texte):,} car. | V={len(itos)} | params {n_par:,} | seed {args.seed}")
+    print(f"{'step':>6} | {'perte train':>11} | {'perte val':>10} | {'val fixe':>9} | {'lr':>8} | {'tok/s':>7}")
+    meilleure = (float("inf"), -1)          # (val fixe, pas) du checkpoint_best
     debut = time.time()
     for step in range(args.max_steps + 1):
         lr = taux_apprentissage(step, args.lr, args.warmup, args.max_steps)
@@ -611,19 +639,26 @@ def entrainer(args):
         if step % args.log_every == 0 or step == args.max_steps:
             Pev = parametres_effectifs(P, cfg) if args.ternary else P
             pv = float(np.mean([forward(Pev, cfg, *prendre_batch(data_val, args.batch_size, cfg["block_size"], rng))[1] for _ in range(10)]))
+            pf = evaluer_fixe(Pev, cfg, data_val, cfg["block_size"])   # déterministe, aucun tirage rng
             tok_s = int(args.batch_size * cfg["block_size"] * (step + 1) / (time.time() - debut))
-            print(f"{step:>6} | {perte:>11.4f} | {pv:>10.4f} | {lr:>8.2e} | {tok_s:>7}")
-            historique.append((step, float(perte), pv))
+            print(f"{step:>6} | {perte:>11.4f} | {pv:>10.4f} | {pf:>9.4f} | {lr:>8.2e} | {tok_s:>7}")
+            historique.append((step, float(perte), pv, pf))
             np.savez_compressed(os.path.join(args.out_dir, "checkpoint.npz"), **P)
+            if pf < meilleure[0]:
+                meilleure = (pf, step)
+                np.savez_compressed(os.path.join(args.out_dir, "checkpoint_best.npz"), **P)
             with open(os.path.join(args.out_dir, "historique.csv"), "w", encoding="utf-8") as f:
                 for row in historique:
                     f.write(",".join(str(v) for v in row) + "\n")
     vals = [r[2] for r in historique[1:]]
     trs = [r[1] for r in historique[1:]]
+    fixes = [r[3] for r in historique[1:]]
     resume = {"types": types, "seed": args.seed, "params": n_par,
-              "ternary": bool(args.ternary),
+              "ternary": bool(args.ternary), "phi": PHI,
               "val_min": min(vals), "val_min_step": historique[1:][int(np.argmin(vals))][0],
               "val_final": vals[-1], "train_final": trs[-1],
+              "val_fixe_min": meilleure[0], "val_fixe_min_step": meilleure[1],
+              "val_fixe_final": fixes[-1],
               "kv_cache_octets_par_token": sum(2 * cfg["d_model"] * 4 for t in types if t == "smax")}
     with open(os.path.join(args.out_dir, "resume.json"), "w", encoding="utf-8") as f:
         json.dump(resume, f, indent=1, ensure_ascii=False)
@@ -631,7 +666,10 @@ def entrainer(args):
 
 
 def main():
+    global PHI
     ap = argparse.ArgumentParser(description="C1 : hybride linéaire/softmax")
+    ap.add_argument("--phi", choices=["elu1", "historique"], default="elu1",
+                    help="feature map : ELU+1 (défaut) ; « historique » = version boguée de C1–C3, pour reproduction")
     ap.add_argument("--check-grads", action="store_true")
     ap.add_argument("--train", action="store_true")
     ap.add_argument("--types", default="lin,smax", help='ex: "lin,lin", "lin,smax", "smax,smax"')
@@ -658,6 +696,7 @@ def main():
                     help="exporter P_eff (γ·Q + échelles) pour le profileur")
     ap.add_argument("--out-ternary", default="results/c4/checkpoint_ternaire.npz")
     args = ap.parse_args()
+    PHI = args.phi
     if args.check_grads:
         ok = verifier_gradients(args)
         raise SystemExit(0 if ok else 1)
