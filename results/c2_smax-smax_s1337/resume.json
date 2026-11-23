@@ -1,0 +1,13 @@
+{
+ "types": [
+  "smax",
+  "smax"
+ ],
+ "seed": 1337,
+ "params": 240480,
+ "val_min": 2.123495101928711,
+ "val_min_step": 700,
+ "val_final": 3.138481616973877,
+ "train_final": 0.30463841557502747,
+ "kv_cache_octets_par_token": 1536
+}

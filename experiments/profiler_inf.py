@@ -106,15 +106,16 @@ class GenerationIncrementale:
         return tot
 
 
-def memoire(types, D, P, t_ctx):
+def memoire(types, D, P, t_ctx, n_head=4):
     poids = sum(v.nbytes for v in P.values())
+    dh = D // n_head
     etat = 0
     kv = 0
     for t in types:
         if t == "lin":
-            etat += (D * D + D) * 4          # S (D×D) + Z (D)
+            etat += (n_head * dh * dh + n_head * dh) * 4   # S (H×dh×dh) + Z (H×dh)
         else:
-            kv += 2 * t_ctx * D * 4          # K + V, float32
+            kv += 2 * t_ctx * D * 4                        # K + V, float32
     return {"poids_octets": poids, "etat_lin_octets": etat, "kv_octets": kv}
 
 
@@ -167,7 +168,7 @@ def main():
         dt = time.perf_counter() - t0
         vgen[T0] = {"tok_s": round(args.n_gen / dt, 1),
                     "prefill_tok_s": round(T0 / prefill, 1),
-                    "kv_a_mi_trajet_octets": memoire(types, args.d_model, P, T0 + args.n_gen // 2)["kv_octets"]}
+                    "kv_a_mi_trajet_octets": memoire(types, args.d_model, P, T0 + args.n_gen // 2, args.n_head)["kv_octets"]}
         print(f"V_gen @T0={T0:>3} : {vgen[T0]['tok_s']:.1f} tok/s (prefill {vgen[T0]['prefill_tok_s']:.0f} tok/s)")
 
     # ---------- 3. contraste naïf (re-calcul de la fenêtre) ----------
@@ -199,7 +200,7 @@ def main():
             lg = g2.pas(tok)
             tok = int(np.argmax(lg))
         dt = time.perf_counter() - t0
-        m = memoire(types, args.d_model, P2, T)
+        m = memoire(types, args.d_model, P2, T, args.n_head)
         scaling[T] = {"prefill_tok_s": round(T / prefill, 1),
                       "v_gen_tok_s": round(100 / dt, 1),
                       "kv_octets": m["kv_octets"]}
@@ -207,9 +208,9 @@ def main():
               f"V_gen {scaling[T]['v_gen_tok_s']:.1f} tok/s | KV {m['kv_octets']/1024:.0f} Ko")
 
     # ---------- 5. mémoire ----------
-    mem = memoire(types, args.d_model, P, 96)
+    mem = memoire(types, args.d_model, P, 96, args.n_head)
     print(f"mémoire : poids {mem['poids_octets']/1024:.0f} Ko | état linéaire {mem['etat_lin_octets']/1024:.0f} Ko | "
-          f"KV@96 {mem['kv_octets']/1024:.0f} Ko | KV@4096 {memoire(types, args.d_model, P, 4096)['kv_octets']/1024:.0f} Ko")
+          f"KV@96 {mem['kv_octets']/1024:.0f} Ko | KV@4096 {memoire(types, args.d_model, P, 4096, args.n_head)['kv_octets']/1024:.0f} Ko")
 
     resultat = {"types": types, "ckpt": args.ckpt,
                 "equivalence_max_diff": pire,
@@ -217,7 +218,7 @@ def main():
                 "v_gen_naive_fenetre": naive,
                 "scaling_mecanisme": scaling,
                 "memoire": mem,
-                "memoire_kv_4096": memoire(types, args.d_model, P, 4096)}
+                "memoire_kv_4096": memoire(types, args.d_model, P, 4096, args.n_head)}
     chemin = args.out or f"results/profile_inf_{args.types.replace(',', '-')}.json"
     with open(chemin, "w", encoding="utf-8") as f:
         json.dump(resultat, f, indent=1, ensure_ascii=False)

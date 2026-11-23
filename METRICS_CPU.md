@@ -30,12 +30,24 @@
 2. **Qualité par Go/s** : temps théorique de lecture des poids par token (`poids × octets / bande passante`) vs Q — la vraie monnaie de l'inférence CPU.
 3. **Qualité par état** : Q vs M@T pour T ∈ {128, 1024, 4096} — c'est la métrique qui départage smax/lin/hybride.
 
-## Mesures de référence actuelles (seed 1337, 2 CPU, NumPy)
+## Mesures de référence (C2 : moyennes 3 seeds + profilage batch-1 réel)
 
-| Configuration | Q (val min) | M@T=96 | M@T=4096 |
+**Qualité Q (val_min, moyenne ± std sur 3 seeds)** :
+
+| Configuration | Q (val min) | Q@1800 (régime sur-appris) | M@T=4096 |
 |---|---|---|---|
-| `smax,smax` | 2.1235 | ≈ 147 Ko | ≈ 6.3 Mo (croît) |
-| `lin,smax` (C1) | **2.1112** | ≈ 147 Ko | ≈ 3.2 Mo (croît ÷2) |
-| `lin,lin` | 2.2349 | ≈ 147 Ko | **≈ 147 Ko constant** |
+| `smax,smax` | **2.1448 ± 0.018** | 3.1142 ± 0.0289 | ≈ 6,1 Mo (KV, croît) |
+| `lin,smax` | 2.1652 ± 0.058 | **2.5515 ± 0.0804** | ≈ 3,1 Mo (croît ÷2) |
+| `lin,lin` | 2.2480 ± 0.012 | 2.786 ± 0.0487 | **0 (état 19 Ko constant)** |
 
-*Note honnête : V_train NumPy n'est pas une métrique concept (les outer-products `lin` ne sont pas des matmuls BLAS). V_gen batch-1 est la mesure qui compte — elle sera produite par C2 avec le profiler d'inférence.*
+**V_gen batch-1 mesurée (tok/s, NumPy 2 CPU, ±20 % de bruit de timing)** :
+
+| Contexte T | `smax,smax` | `lin,smax` | `lin,lin` |
+|---|---|---|---|
+| 256 | 2 404 | 2 394 | 2 494 |
+| 1 024 | 1 341 | 1 824 | 2 652 |
+| 4 096 | 588 | 948 | **2 693 (plat)** |
+
+KV-cache incrémental vs génération naïve : **×18,6** (140,7 → 2 610 tok/s). Le profil O(1) du linéaire et la décroissance O(T) du softmax sont maintenant des mesures, pas des prédictions.
+
+*Note honnête : V_train NumPy n'est pas une métrique concept (les outer-products `lin` ne sont pas des matmuls BLAS). Les V_gen ci-dessus sont des mesures réelles du profileur (`results/profile_inf_*.json`).*

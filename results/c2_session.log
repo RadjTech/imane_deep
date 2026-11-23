@@ -1,2 +1,50 @@
 protocole : f3342cfa2b6c66f84b6e13b83e83793a1d35bc54
 === RUN c2_smax-smax_s2024 ===
+[HYBRIDE types=['smax', 'smax']] corpus 11,172 car. | V=77 | params 240,480 | seed 2024
+     0 |      4.3749 |     4.3569 | 1.00e-05 |    1043
+  1000 |      1.0102 |     2.4677 | 5.08e-04 |    5304
+  1800 |      0.3152 |     3.1218 | 1.00e-04 |    5114
+RÉSUMÉ : {"types": ["smax", "smax"], "seed": 2024, "params": 240480, "val_min": 2.1549201011657715, "val_min_step": 600, "val_final": 3.1218228340148926, "train_final": 0.3151681125164032, "kv_cache_octets_par_token": 1536}
+=== RUN c2_lin-lin_s2024 ===
+[HYBRIDE types=['lin', 'lin']] corpus 11,172 car. | V=77 | params 240,480 | seed 2024
+     0 |      4.3755 |     4.3569 | 1.00e-05 |     722
+  1000 |      1.6319 |     2.3702 | 5.08e-04 |    3686
+  1800 |      1.0512 |     2.7357 | 1.00e-04 |    3628
+RÉSUMÉ : {"types": ["lin", "lin"], "seed": 2024, "params": 240480, "val_min": 2.2573437690734863, "val_min_step": 400, "val_final": 2.735689163208008, "train_final": 1.0511598587036133, "kv_cache_octets_par_token": 0}
+=== RUN c2_lin-smax_s2024 ===
+[HYBRIDE types=['lin', 'smax']] corpus 11,172 car. | V=77 | params 240,480 | seed 2024
+     0 |      4.3756 |     4.3572 | 1.00e-05 |     951
+  1000 |      1.4088 |     2.2818 | 5.08e-04 |    4581
+  1800 |      0.8523 |     2.5857 | 1.00e-04 |    4460
+RÉSUMÉ : {"types": ["lin", "smax"], "seed": 2024, "params": 240480, "val_min": 2.2265284061431885, "val_min_step": 700, "val_final": 2.5857179164886475, "train_final": 0.8522830009460449, "kv_cache_octets_par_token": 768}
+=== RUN c2_smax-smax_s777 ===
+[HYBRIDE types=['smax', 'smax']] corpus 11,172 car. | V=77 | params 240,480 | seed 777
+     0 |      4.3527 |     4.3384 | 1.00e-05 |    1087
+  1000 |      0.9167 |     2.3881 | 5.08e-04 |    5537
+  1800 |      0.3570 |     3.0822 | 1.00e-04 |    5341
+RÉSUMÉ : {"types": ["smax", "smax"], "seed": 777, "params": 240480, "val_min": 2.1559407711029053, "val_min_step": 700, "val_final": 3.082230567932129, "train_final": 0.35703107714653015, "kv_cache_octets_par_token": 1536}
+=== RUN c2_lin-lin_s777 ===
+[HYBRIDE types=['lin', 'lin']] corpus 11,172 car. | V=77 | params 240,480 | seed 777
+     0 |      4.3531 |     4.3391 | 1.00e-05 |     779
+  1000 |      1.5622 |     2.4012 | 5.08e-04 |    3929
+  1800 |      0.9847 |     2.7893 | 1.00e-04 |    3828
+RÉSUMÉ : {"types": ["lin", "lin"], "seed": 777, "params": 240480, "val_min": 2.2517032623291016, "val_min_step": 500, "val_final": 2.7892932891845703, "train_final": 0.9847207069396973, "kv_cache_octets_par_token": 0}
+=== RUN c2_lin-smax_s777 ===
+[HYBRIDE types=['lin', 'smax']] corpus 11,172 car. | V=77 | params 240,480 | seed 777
+     0 |      4.3528 |     4.3392 | 1.00e-05 |     942
+  1000 |      1.3495 |     2.2487 | 5.08e-04 |    4494
+  1800 |      0.8459 |     2.6091 | 1.00e-04 |    4415
+RÉSUMÉ : {"types": ["lin", "smax"], "seed": 777, "params": 240480, "val_min": 2.157797336578369, "val_min_step": 700, "val_final": 2.609112501144409, "train_final": 0.8459348678588867, "kv_cache_octets_par_token": 768}
+=== RUN c2_smax-smax_s1337 ===
+[HYBRIDE types=['smax', 'smax']] corpus 11,172 car. | V=77 | params 240,480 | seed 1337
+     0 |      4.3504 |     4.3515 | 1.00e-05 |    1101
+  1000 |      0.9110 |     2.4016 | 5.08e-04 |    5474
+  1800 |      0.3046 |     3.1385 | 1.00e-04 |    5305
+RÉSUMÉ : {"types": ["smax", "smax"], "seed": 1337, "params": 240480, "val_min": 2.123495101928711, "val_min_step": 700, "val_final": 3.138481616973877, "train_final": 0.30463841557502747, "kv_cache_octets_par_token": 1536}
+=== RUN c2_lin-lin_s1337 ===
+[HYBRIDE types=['lin', 'lin']] corpus 11,172 car. | V=77 | params 240,480 | seed 1337
+     0 |      4.3513 |     4.3521 | 1.00e-05 |     728
+  1000 |      1.5982 |     2.3516 | 5.08e-04 |    3872
+  1800 |      0.9393 |     2.8330 | 1.00e-04 |    3788
+RÉSUMÉ : {"types": ["lin", "lin"], "seed": 1337, "params": 240480, "val_min": 2.2348930835723877, "val_min_step": 500, "val_final": 2.8330206871032715, "train_final": 0.9393086433410645, "kv_cache_octets_par_token": 0}
+✔ tous les runs C2 sont terminés

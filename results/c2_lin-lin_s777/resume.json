@@ -1,0 +1,13 @@
+{
+ "types": [
+  "lin",
+  "lin"
+ ],
+ "seed": 777,
+ "params": 240480,
+ "val_min": 2.2517032623291016,
+ "val_min_step": 500,
+ "val_final": 2.7892932891845703,
+ "train_final": 0.9847207069396973,
+ "kv_cache_octets_par_token": 0
+}

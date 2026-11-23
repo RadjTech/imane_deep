@@ -7,47 +7,47 @@
  "equivalence_max_diff": 1.9788742065429688e-05,
  "v_gen_dans_distribution": {
   "16": {
-   "tok_s": 1441.3,
-   "prefill_tok_s": 3134.6,
+   "tok_s": 2648.9,
+   "prefill_tok_s": 2820.3,
    "kv_a_mi_trajet_octets": 69888
   },
   "48": {
-   "tok_s": 1433.5,
-   "prefill_tok_s": 1688.7,
+   "tok_s": 2751.7,
+   "prefill_tok_s": 2921.7,
    "kv_a_mi_trajet_octets": 94464
   },
   "96": {
-   "tok_s": 2826.4,
-   "prefill_tok_s": 3068.7,
+   "tok_s": 2598.2,
+   "prefill_tok_s": 2841.6,
    "kv_a_mi_trajet_octets": 131328
   }
  },
- "v_gen_naive_fenetre": 6.4,
+ "v_gen_naive_fenetre": 113.4,
  "scaling_mecanisme": {
   "256": {
-   "prefill_tok_s": 1402.7,
-   "v_gen_tok_s": 1040.3,
+   "prefill_tok_s": 2819.6,
+   "v_gen_tok_s": 2393.9,
    "kv_octets": 196608
   },
   "1024": {
-   "prefill_tok_s": 1830.9,
-   "v_gen_tok_s": 936.8,
+   "prefill_tok_s": 2394.4,
+   "v_gen_tok_s": 1823.5,
    "kv_octets": 786432
   },
   "4096": {
-   "prefill_tok_s": 1156.5,
-   "v_gen_tok_s": 784.1,
+   "prefill_tok_s": 1461.3,
+   "v_gen_tok_s": 947.9,
    "kv_octets": 3145728
   }
  },
  "memoire": {
   "poids_octets": 961920,
-  "etat_lin_octets": 37248,
+  "etat_lin_octets": 9600,
   "kv_octets": 73728
  },
  "memoire_kv_4096": {
   "poids_octets": 961920,
-  "etat_lin_octets": 37248,
+  "etat_lin_octets": 9600,
   "kv_octets": 3145728
  }
 }

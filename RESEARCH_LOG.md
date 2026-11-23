@@ -50,7 +50,7 @@ Sources : `results/c1_synthese.json`, CSV bruts dans `results/`. Garde-fou : éc
 
 ## Cycle C2 — 3 seeds × 3 configurations + profilage d'inférence batch-1
 
-**Date** : 2026-11-23 · **Statut** : 🔎 en cours
+**Date** : 2026-11-23 · **Statut** : ✅ terminé — Décision : POURSUIVRE → C3 (delta rule) · H1b infirmée · H4 ouverte
 
 ### 1. Question
 (1) La supériorité de l'hybride `lin,smax` sur `smax,smax` observée en C1 survit-elle au bruit de seed (H1b) ? (2) Quel est le profil réel d'inférence batch-1 des trois mécanismes : V_gen mesuré, mémoire d'état, scaling en longueur de contexte ?
@@ -70,8 +70,44 @@ Sources : `results/c1_synthese.json`, CSV bruts dans `results/`. Garde-fou : éc
 - **Analyse pré-enregistrée** : `scripts/analyse_c2.py` (moyennes ± std, victoires appariées par seed, verdicts selon les critères H0/H1b).
 - Exécution : `scripts/run_c2.sh` (8 runs restants, séquentiels, env identique à C1).
 
-### 4. Résultats — à remplir à la fin des runs
+### 4. Résultats
 
-### 5. Analyse — à remplir
+**(a) Statistique — val_min sur 3 seeds** (`results/c2/analyse.json`) :
 
-### 6. Décision — à remplir
+| Configuration | s1337 | s2024 | s777 | moyenne | écart type |
+|---|---|---|---|---|---|
+| `smax,smax` | 2.1235 | 2.1549 | 2.1559 | **2.1448** | 0.0184 |
+| `lin,lin` | 2.2349 | 2.2573 | 2.2517 | **2.2480** | 0.0117 |
+| `lin,smax` | 2.1112 | 2.2265 | 2.1578 | **2.1652** | **0.0580** |
+
+Équivalence d'implémentation (seed 1337, script unifié vs scripts du cours) : **Δ = 0.0000** sur les deux baselines — chiffre pour chiffre.
+
+**(b) Profillage batch-1** (`results/profile_inf_*.json`, checkpoints s1337) :
+
+V_gen (tok/s) selon la longueur de contexte T (mécanisme pur, pos_emb neutralisée) :
+
+| T | `smax,smax` | `lin,smax` | `lin,lin` | KV smax/hybride |
+|---|---|---|---|---|
+| 256 | 2 404 | 2 394 | 2 494 | 384 / 192 Ko |
+| 1 024 | 1 341 | 1 824 | 2 652 | 1 536 / 768 Ko |
+| 4 096 | **588** | **948** | **2 693 (plat)** | 6 144 / 3 072 Ko |
+
+Contraste naïf vs incrémental à T≈96 : 140,7 → 2 610 tok/s (`smax,smax`) = **×18,6**.
+Mémoire : poids 939 Ko (identique) ; état linéaire 9,4 Ko/couche (constant) ; KV@4096 : 6,1 Mo / 3,1 Mo / 0.
+Garde-fou profileur : équivalence incrémental↔parallèle ≤ 3,7e-05 sur les 3 configurations ✔.
+(Bruit de timing NumPy ≈ ±20 % : ne comparer que les tendances et les rapports.)
+
+### 5. Analyse
+
+1. **H1b infirmée** : mean(lin,smax)=2.1652 > mean(smax,smax)=2.1448 ; victoires appariées 1/3. Le « hybride > softmax » de C1 était un hasard de seed (le s1337 favorisait l'hybride). Conséquence consignée : rétrogradation dans `HYPOTHESES.md`.
+2. **H1 maintenue sur la moyenne** : rattrapage = (2.2480−2.1652)/(2.2480−2.1448) = **80 %** (critère ≥ 50 %). Mais variance de l'hybride (std 0.058) > 0.05 → **H0 déclenche « plus de seeds requis »** pour toute conclusion fine impliquant l'hybride. La sensibilité au seed du ratio est elle-même un résultat (2 couches = régime instable du placement du ratio).
+3. **Résultat robuste (3/3 seeds, écart 0.103 nat ≫ std des configs pures 0.012-0.018)** : le tout-linéaire perd ~0.103 nat contre le softmax — l'état cumulatif ne récupère pas seul la capacité de routage précis.
+4. **NOUVEAU résultat robuste (3/3 seeds, écart moyen 0.56 nat)** : au régime sur-appris (1 800 pas), l'hybride généralise nettement mieux (val ≈ 2.55 vs 3.11 ; train 0.82 vs 0.33). La couche à état **borne la mémorisation → régularisation implicite**. C'est un angle de recherche en soi (l'état récurrent comme contrôle du budget de mémorisation).
+5. **Profilage** : constance O(1) mesurée (`lin,lin` plat à 2 693 tok/s jusqu'à T=4096, KV=0) contre la décroissance O(T) du softmax (2 404 → 588 tok/s, KV 6,1 Mo) ; l'hybride tient l'entre-deux (948 tok/s, 3,1 Mo). Le KV-cache incrémen­tal apporte ×18,6 sur la génération naïve.
+
+### 6. Décision
+
+- **H1b rétrogradée** (infirmée) ; **H1 maintenue** (moyenne, rattrapage 80 %) ; **H0** : seuil déclenché — conclusions fines (< 0.06 nat) impliquant l'hybride gelées sans ≥ 5 seeds.
+- **POURSUIVRE → C3 (delta rule, H2)** : candidat principal pour récupérer les 0.103 nat manquants du tout-linéaire à mémoire constante.
+- **Nouvelle hypothèse H4 annoncée** (voir `HYPOTHESES.md`) : l'effet régulariseur de l'état — à mesurer aussi dans C3 (val@1800 en plus de val_min dans TOUS les protocoles futurs).
+- Design futur : si un écart fin doit être tranché, passer à 5 seeds (coût ~10 min/seed, assumé).

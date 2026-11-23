@@ -1,0 +1,53 @@
+{
+ "types": [
+  "lin",
+  "lin"
+ ],
+ "ckpt": "results/c2_lin-lin_s1337/checkpoint.npz",
+ "equivalence_max_diff": 9.059906005859375e-06,
+ "v_gen_dans_distribution": {
+  "16": {
+   "tok_s": 2555.4,
+   "prefill_tok_s": 2694.9,
+   "kv_a_mi_trajet_octets": 0
+  },
+  "48": {
+   "tok_s": 2730.8,
+   "prefill_tok_s": 2809.7,
+   "kv_a_mi_trajet_octets": 0
+  },
+  "96": {
+   "tok_s": 2651.2,
+   "prefill_tok_s": 2773.9,
+   "kv_a_mi_trajet_octets": 0
+  }
+ },
+ "v_gen_naive_fenetre": null,
+ "scaling_mecanisme": {
+  "256": {
+   "prefill_tok_s": 2836.3,
+   "v_gen_tok_s": 2493.5,
+   "kv_octets": 0
+  },
+  "1024": {
+   "prefill_tok_s": 2690.7,
+   "v_gen_tok_s": 2651.5,
+   "kv_octets": 0
+  },
+  "4096": {
+   "prefill_tok_s": 2866.4,
+   "v_gen_tok_s": 2692.8,
+   "kv_octets": 0
+  }
+ },
+ "memoire": {
+  "poids_octets": 961920,
+  "etat_lin_octets": 19200,
+  "kv_octets": 0
+ },
+ "memoire_kv_4096": {
+  "poids_octets": 961920,
+  "etat_lin_octets": 19200,
+  "kv_octets": 0
+ }
+}
