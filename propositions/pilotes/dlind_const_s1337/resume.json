@@ -1,0 +1,17 @@
+{
+ "types": [
+  "dlind",
+  "dlind"
+ ],
+ "phi": "elu1",
+ "normkeys": false,
+ "delta": "const",
+ "seed": 1337,
+ "val_min": 1.8698686361312866,
+ "val_min_step": 900,
+ "val_final": 1.9169495105743408,
+ "val_entiere_min": 1.8822219977012047,
+ "val_entiere_final": 1.9175800488545345,
+ "train_final": 1.0618869066238403,
+ "secondes": 971.7231919765472
+}

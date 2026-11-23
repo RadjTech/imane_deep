@@ -46,6 +46,9 @@ python3 experiments/hybrid_numpy.py --train --types "smax,smax" --out-dir result
 python3 experiments/hybrid_numpy.py --train --types "lin,lin" --out-dir results/c1_baseline_lin
 ```
 
+> **Note (24/11/2026)** — la φ par défaut est celle de C1–C5 (bug connu pour x ≤ 0) ; `--phi elu1` active la version corrigée.
+> Voir `propositions/RELEVE.md` : bug, pilotes, outils et suite proposée.
+
 Protocole identique pour les trois configurations : 240 480 paramètres, corpus 11 172 caractères (vocab 77), batch 16 × T 96, 1 800 pas, AdamW (warmup 100 → cosinus), seed 1337. Seule variable : le type d'attention par couche — **ablation propre**.
 
 ## Contexte scientifique

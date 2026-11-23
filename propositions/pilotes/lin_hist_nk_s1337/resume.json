@@ -1,0 +1,16 @@
+{
+ "types": [
+  "lin",
+  "lin"
+ ],
+ "phi": "hist",
+ "normkeys": true,
+ "seed": 1337,
+ "val_min": 2.247088670730591,
+ "val_min_step": 600,
+ "val_final": 2.545517921447754,
+ "val_entiere_min": 2.2447610818422756,
+ "val_entiere_final": 2.5015408149132363,
+ "train_final": 1.3803863525390625,
+ "secondes": 773.3023135662079
+}

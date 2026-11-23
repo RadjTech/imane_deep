@@ -1,0 +1,115 @@
+# Cycle en matrice : un job par (configuration × seed), tous en parallèle, CPU seul.
+# Déclenchement manuel uniquement (onglet Actions → cycle-matrice → Run workflow).
+# Destination : .github/workflows/cycle.yml
+name: cycle-matrice
+run-name: "Cycle ${{ inputs.cycle }}"
+
+on:
+  workflow_dispatch:
+    inputs:
+      cycle:
+        description: "Préfixe du cycle (ex. c3b) : lettres, chiffres, tirets"
+        required: true
+        type: string
+      configs:
+        description: 'Liste JSON de configurations'
+        required: true
+        default: '["smax,smax","lin,lin","dlind,dlind"]'
+        type: string
+      seeds:
+        description: 'Liste JSON de seeds'
+        required: true
+        default: '[1337, 2024, 777]'
+        type: string
+      max_steps:
+        description: "Nombre de pas"
+        required: true
+        default: "1800"
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  garde-fou:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install numpy
+      - name: Gradients (protocole étape 4)
+        run: python experiments/hybrid_numpy.py --check-grads
+      - name: Conformité des formules
+        run: python scripts/gardefou_conformite.py
+      - name: Référence n-gramme
+        run: python scripts/ngram_baseline.py
+
+  entrainer:
+    needs: garde-fou
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        types: ${{ fromJSON(inputs.configs) }}
+        seed: ${{ fromJSON(inputs.seeds) }}
+    # Les entrées passent par l'environnement, jamais par interpolation directe dans run:
+    env:
+      CYCLE: ${{ inputs.cycle }}
+      TYPES: ${{ matrix.types }}
+      SEED: ${{ matrix.seed }}
+      MAX_STEPS: ${{ inputs.max_steps }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install numpy
+      - name: Entraînement
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$CYCLE" =~ ^[A-Za-z0-9-]+$ ]] || { echo "Préfixe de cycle invalide"; exit 1; }
+          TAG="${CYCLE}_${TYPES//,/-}_s${SEED}"
+          echo "TAG=$TAG" >> "$GITHUB_ENV"
+          mkdir -p "results/$TAG"
+          git rev-parse HEAD > "results/$TAG/GIT_COMMIT.txt"
+          python -c "import numpy, platform; print('numpy', numpy.__version__, platform.platform())" > "results/$TAG/ENV.txt"
+          python -u experiments/hybrid_numpy.py --train --types "$TYPES" --seed "$SEED" \
+            --max-steps "$MAX_STEPS" --out-dir "results/$TAG" 2>&1 | tee "results/$TAG/train.log"
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: ${{ env.TAG }}
+          path: results/${{ env.TAG }}/
+
+  analyser:
+    needs: entrainer
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      CYCLE: ${{ inputs.cycle }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: actions/download-artifact@v4
+        with:
+          path: artefacts
+      - name: Moyennes, écarts types, comparaisons appariées
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p sortie
+          python scripts/agreger.py --racine artefacts --prefixes "$CYCLE" \
+            --md sortie/analyse.md --json sortie/analyse.json
+          cat sortie/analyse.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: analyse
+          path: sortie/
