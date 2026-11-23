@@ -135,7 +135,11 @@ def main():
     ap.add_argument("--n-head", type=int, default=4)
     ap.add_argument("--n-gen", type=int, default=150)
     ap.add_argument("--out", default="")
+    ap.add_argument("--phi", choices=["historique", "elu1"], default="historique",
+                    help="φ utilisée à l'entraînement du checkpoint (« historique » pour C1–C5)")
     args = ap.parse_args()
+    hn.PHI = args.phi
+    hn.verifier_phi(args.ckpt)
 
     ids, chars = charger_corpus(args.data)
     P = {k: v for k, v in np.load(args.ckpt).items()}
