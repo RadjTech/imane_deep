@@ -38,8 +38,12 @@ python3 scripts/gardefou_conformite.py
 python3 scripts/lancer_parallele.py --cycle c3b --variantes \
     --configs smax hybride-hist hybride-elu1 lin-hist lin-elu1 lin-hist-nk dlind-hist dlind-elu1 dlind-const \
     --seeds 11 22 33 44 55
-python3 scripts/agreger.py --prefixes c3b --ref dlind-hist --metrique val_entiere_min --json results/c3b/analyse.json
+python3 scripts/analyse_c3b.py        # verdicts H5–H9 (pré-enregistrés), écrit results/c3b/analyse.json
+bash scripts/run_c3b.sh               # équivalent : garde-fous + runs + analyse ; accepte une liste de seeds
 ```
+
+**Coût mesuré sur cette machine (24/11/2026)** : 5 à 10 min par run à 1 thread, soit 33 min par seed (9 variantes, 2 processus)
+et environ 3 h pour les 45 runs. Sur secteur : à pleine charge pendant ce temps, l'ordinateur doit être branché.
 
 `gardefou_conformite.py` teste explicitement la φ « elu1 » (celle des variantes `-elu1`) et passe.
 Les variantes `-hist` utilisent la φ historique, qui reste le défaut du module (témoins de C1–C5).
