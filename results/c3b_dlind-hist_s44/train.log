@@ -1,0 +1,20 @@
+    0 | train 4.3741 | val 4.3701 | val entière 4.3689 | 2s
+  100 | train 2.4423 | val 2.4442 | val entière 2.4461 | 42s
+  200 | train 2.2050 | val 2.2201 | val entière 2.2214 | 83s
+  300 | train 2.1278 | val 2.0978 | val entière 2.1064 | 123s
+  400 | train 1.9817 | val 2.0442 | val entière 2.0326 | 162s
+  500 | train 1.8365 | val 2.0178 | val entière 1.9945 | 197s
+  600 | train 1.6635 | val 1.9328 | val entière 1.9395 | 234s
+  700 | train 1.6864 | val 1.9234 | val entière 1.9247 | 275s
+  800 | train 1.5457 | val 1.9297 | val entière 1.9369 | 311s
+  900 | train 1.5069 | val 1.9213 | val entière 1.9121 | 349s
+ 1000 | train 1.3923 | val 1.9167 | val entière 1.9120 | 388s
+ 1100 | train 1.3279 | val 1.9465 | val entière 1.9477 | 424s
+ 1200 | train 1.2648 | val 1.9499 | val entière 1.9289 | 459s
+ 1300 | train 1.1611 | val 1.9672 | val entière 1.9364 | 493s
+ 1400 | train 1.1231 | val 1.9289 | val entière 1.9527 | 528s
+ 1500 | train 1.0846 | val 1.9659 | val entière 1.9685 | 563s
+ 1600 | train 1.0651 | val 1.9954 | val entière 1.9809 | 598s
+ 1700 | train 1.0455 | val 1.9913 | val entière 2.0050 | 632s
+ 1800 | train 1.0986 | val 2.0276 | val entière 2.0057 | 668s
+RÉSUMÉ : {"variante": "dlind-hist", "types": ["dlind", "dlind"], "phi": "hist", "cles_normalisees": false, "delta": "ref", "seed": 44, "params": 240488, "val_min": 1.9167287349700928, "val_min_step": 1000, "val_final": 2.0276176929473877, "train_final": 1.0986207723617554, "val_entiere_min": 1.9119969569719755, "val_entiere_final": 2.005667369182293}

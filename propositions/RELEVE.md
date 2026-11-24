@@ -1,7 +1,19 @@
-# Relève — 24/11/2026
+# Relève — 24/11/2026 (mise à jour après C3b)
 
-Passage de relais. « Mesuré » = fait aujourd'hui avec les scripts de ce dossier ou de `scripts/`.
+Passage de relais. **Ordre de lecture** : ce fichier, puis `RESULTATS_C3b.md` (résultats), puis `PROMPT_RELEVE.md` (mission suivante).
+« Mesuré » = fait avec les scripts de ce dossier ou de `scripts/`.
 Les chiffres d'un audit fait par un sous-agent sont dans `AUDIT.md`, marqués comme tels quand je ne les ai pas revérifiés.
+
+## 0. Où on en est (une minute)
+
+- **C1–C5** : faits, sur un corpus de 11 Ko. **C6 (budget)** : cycle du collaborateur, pas lancé ici, à ne pas toucher.
+- **C3b** (re-mesure des fondations) : **terminé**, 45 runs, seeds neufs. Verdicts (étiquettes locales `C3b-H…`, car H5/H6 de `HYPOTHESES.md` sont celles de C5) :
+  `dlind` reste devant `smax` avec la φ correcte (−0,165, 5/5) ; la φ historique aidait `dlind` (+0,095) ; normaliser les clés ne suffit pas ;
+  la version sans clé ni requête (`dlind-const`) fait au moins aussi bien que `dlind` (−0,043, 5/5 ; verdict pré-enregistré « indéterminée ») ;
+  l'hybride avec φ correcte rattrape 47 % de l'écart (seuil 50 %, dans le bruit).
+- **Verrou** : le corpus de 11 Ko. Un n-gramme (1,683) fait mieux que tous les modèles ; à cette taille on mesure surtout la régularisation.
+- **Suite** : données puis validation sur un corpus plus grand → `PROMPT_RELEVE.md`.
+- **Règles** : travail sur `main`, aucune branche ; pas de push sans demande ; ne jamais réécrire un dossier de résultats ; protocole commité avant les runs.
 
 ## 1. Ce qui vient d'être fusionné dans `main` (commit `2536e85`)
 
@@ -35,7 +47,9 @@ Pilotes (1 seed ⇒ **indication**, sauf mention) :
 | `lin`, φ historique + clés normalisées | 1337 | 2,2471 | 2,5455 |
 | `smax` (C2) | 1337 | 2,1235 | 3,1385 |
 
-Lecture possible, à confirmer sur des seeds neufs : (a) une grande partie du gain de `dlind` vient d'un oubli exponentiel, pas de
+**Depuis, C3b a vérifié sur 5 seeds neufs** (`RESULTATS_C3b.md`) : (a), (b) et (c) ci-dessous vont dans le même sens, (b) est confirmée pour `dlind` (H6).
+
+Lecture des pilotes (1 à 2 seeds, avant C3b) : (a) une grande partie du gain de `dlind` vient d'un oubli exponentiel, pas de
 l'adressage par clés (la version sans clé fait aussi bien ou mieux, 2 seeds) ; (b) l'effet « l'état régularise » (H4, H4b) semble porté
 par la φ historique : avec la φ corrigée, `lin` sur-apprend comme `smax` (3,23 contre 3,14) et `dlind` passe de 1,99 à 2,55 au pas 1800 ;
 (c) à ce seed, `dlind` reste devant `smax` avec la φ corrigée (1,972 contre 2,124).
@@ -56,12 +70,11 @@ pas la qualité du mécanisme : le corpus est le premier verrou.
 
 ## 4. Pour continuer
 
-1. **Si le prochain cycle reprend φ historique**, rien à changer : le défaut est le même que C1–C5.
-2. **Pour passer à la φ corrigée**, il faut re-mesurer les témoins dans le même lot (le protocole `PROTOCOLE_C3b.md` le fait, seeds neufs).
-   `python scripts/lancer_parallele.py --cycle c3b --variantes --configs smax hybride-hist hybride-elu1 lin-hist lin-elu1 lin-hist-nk dlind-hist dlind-elu1 dlind-const --seeds 11 22 33 44 55`
-   puis `python scripts/agreger.py --prefixes c3b --ref dlind-hist --metrique val_entiere_min`.
-3. **Un corpus de 1 à 5 Mo** avec train / val / test (`scripts/preparer_corpus.py`, texte local déjà sous la main).
-   Rien n'est téléchargé par ce script.
+1. **Données puis validation** : la mission complète est dans `PROMPT_RELEVE.md` (corpus `fr1m` / `fr5m`, protocole, règles, commandes testées).
+2. **Passer à 8 seeds pour H5 et H9 de C3b** (prévu par le protocole, non lancé) : 15 runs, environ 1 h sur la machine locale.
+   `python scripts/lancer_parallele.py --cycle c3b --variantes --configs dlind-const dlind-hist lin-elu1 hybride-elu1 smax --seeds 66 77 88`, à ouvrir par un amendement daté.
+   `analyse_c3b.py` ne compte que les seeds 11 à 55 : il faut une version étendue, pré-enregistrée, avant ces runs.
+3. **Si le prochain cycle reprend φ historique**, rien à changer : le défaut est le même que C1–C5. **Pour passer à la φ corrigée**, re-mesurer les témoins dans le même lot.
 4. CI en matrice : `propositions/cycle.yml` (à placer dans `.github/workflows/`), déclenchement manuel, un job par configuration × seed. Syntaxe vérifiée, jamais exécutée sur GitHub.
 
 ## 5. Non vérifié
@@ -69,8 +82,9 @@ pas la qualité du mécanisme : le corpus est le premier verrou.
 - Le sous-agent de veille bibliographique (conditions GitHub Actions, sources de corpus français) et le moteur NumPy rapide ont été
   interrompus (limite d'API, blocage) : leur travail n'est ni vérifié ni inclus ici.
 - Le pilote `dlind` φ corrigée, seed 2024, a été arrêté avant la fin (ma priorité était C4).
-- Les conclusions de la section 2 ne reposent que sur 1 à 2 seeds ; `PROTOCOLE_C3b.md` propose 5 seeds neufs.
+- C3b : deux runs rejoués à l'identique, les 43 autres non ; aucune vérification sur une autre machine.
+- Les étiquettes H5/H6 sont en double entre C3b et C5 (voir `HYPOTHESES.md`) : à clarifier avant d'y recopier des verdicts.
 
 ## 6. Fichiers de ce dossier
 
-`AUDIT.md` (rapport d'audit, 2 pages) · `PROTOCOLE_C3b.md` (brouillon, à valider) · `analyse_c4_amende.py` (analyse C4 alignée, non exécutée sur les données publiées) · `cycle.yml` (CI en matrice) · `pilotes/` (CSV et resume.json des 5 pilotes complets).
+`RESULTATS_C3b.md` (résultats et lecture de C3b) · `PROMPT_RELEVE.md` (mission suivante) · `AUDIT.md` (rapport d'audit, 2 pages) · `PROTOCOLE_C3b.md` (protocole pré-enregistré, exécuté) · `analyse_c4_amende.py` (analyse C4 alignée, non exécutée sur les données publiées) · `cycle.yml` (CI en matrice) · `pilotes/` (CSV et resume.json des 5 pilotes complets).

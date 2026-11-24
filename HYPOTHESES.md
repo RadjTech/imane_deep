@@ -56,3 +56,16 @@
   - **H4c : ✅ confirmée (3 seeds, C5)** — écart val@1200 **−0.697** (amplifié : −0.56 à 2 couches) ; pente de surapprentissage +0.403 (smax×4) vs +0.039 (dlind×4) vs **+0.007** (ternaire).
   - **H6 : ❌ infirmée de justesse (3 seeds, C5)** — Δ_tern = **+0.057** > 0.05 (contre +0.018 à 2 couches). Effet budget consigné : les 3 runs ternaires atteignent leur val_min tard (pas 1100–1200, s2024 au dernier pas, encore en descente) — à trancher en C6 (budget étendu).
 - Voir `RESEARCH_LOG.md` cycle C5.
+
+---
+
+## C3b — Re-mesure des fondations (24/11/2026)
+
+> Étiquettes **locales** `C3b-H5` … `C3b-H9` : H5 et H6 de ce fichier désignent déjà C5. Critères dans `propositions/PROTOCOLE_C3b.md`, résultats dans `propositions/RESULTATS_C3b.md`.
+
+- **C3b-H5** — l'oubli exponentiel sans clé ni requête équivaut à `dlind` (IC ⊂ ±0,05) : ⚪ **indéterminée** (−0,0430, IC [−0,0617 ; −0,0243] : meilleur sur les 5 seeds, mais hors de la bande d'équivalence).
+- **C3b-H6** — la φ historique aidait `dlind` : ✅ **confirmée** (+0,0946, IC [+0,0585 ; +0,1307]).
+- **C3b-H7** — `dlind` reste devant `smax` avec φ correcte : ✅ **confirmée** (−0,1646, IC [−0,1976 ; −0,1316]).
+- **C3b-H8** — normaliser les clés seule ne suffit pas (IC ⊂ ±0,05) : ✅ **confirmée** (+0,0079).
+- **C3b-H9** — l'hybride rattrape la moitié de l'écart `lin` → `smax` avec φ correcte : ❌ **infirmée de peu** (47 % contre 50 % ; IC du contraste contient 0).
+- **Conséquence** : le mécanisme « adressage par clés » n'est pas soutenu par ces mesures ; H4/H4b sont à ré-attribuer en partie à φ. Le corpus de 11 Ko (n-gramme 1,683 devant tous les modèles) est le premier verrou.

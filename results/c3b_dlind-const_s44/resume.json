@@ -1,0 +1,18 @@
+{
+ "variante": "dlind-const",
+ "types": [
+  "dlind",
+  "dlind"
+ ],
+ "phi": "elu1",
+ "cles_normalisees": false,
+ "delta": "const",
+ "seed": 44,
+ "params": 240488,
+ "val_min": 1.8560192584991455,
+ "val_min_step": 1400,
+ "val_final": 1.950068473815918,
+ "train_final": 1.1629236936569214,
+ "val_entiere_min": 1.8670854495121882,
+ "val_entiere_final": 1.9185968930904682
+}

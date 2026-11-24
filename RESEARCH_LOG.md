@@ -285,3 +285,63 @@ KV `smax`×4 : **12,3 Mo à T=4096** (3 072 octets/token × 4 couches) ; `dlind`
 ### 6. Décision
 
 **C5 ✅ terminé — H5 confirmée (amplifiée), H4c confirmée (amplifié), H6 infirmée de justesse (+0.057, effet budget probable mais consigné).** La delta rule n'est pas seulement robuste à la profondeur : son avantage **grandit** avec elle. Décision : **POURSUIVRE → C6 (budget)** — trancher la question ouverte par H6 : le coût du ternaire à 4 couches est-il un artefact de budget ? (`dlind`×4 float vs ternaire à **2 400 pas**, 3 seeds, critère H6b pré-enregistré à l'ouverture du cycle).
+
+---
+
+## Cycle C3b — Re-mesurer les fondations : φ, normalisation des clés, oubli
+
+**Date** : 2026-11-24 · **Statut** : ✅ terminé (C3b-H5 indéterminée, C3b-H9 infirmée de peu) · **Décision proposée** : PIVOTER vers un corpus plus grand avant de conclure sur le mécanisme
+
+> Hypothèses et analyse pré-enregistrées dans `propositions/PROTOCOLE_C3b.md` et `scripts/analyse_c3b.py` (commits `7c61e39` et `109319f`, avant le premier run),
+> et non dans `HYPOTHESES.md` (écart au point 2 du protocole, consigné).
+> **Étiquettes locales** `C3b-H5` … `C3b-H9` : H5 et H6 existent déjà pour C5 avec un autre sens.
+
+### 1. Question
+Les conclusions de C1–C3 survivent-elles à une φ conforme (ELU+1) ? D'où vient le gain de `dlind` sur `lin` : normalisation des clés, oubli, ou adressage par contenu ?
+
+### 2. Hypothèses annoncées avant l'expérience
+- **C3b-H5** : IC 95 % de (`dlind-const` − `dlind-hist`) ⊂ [−0,05 ; +0,05].
+- **C3b-H6** : IC 95 % de (`dlind-elu1` − `dlind-hist`) entièrement > 0.
+- **C3b-H7** : IC 95 % de (`dlind-elu1` − `smax`) entièrement < 0.
+- **C3b-H8** : IC 95 % de (`lin-hist-nk` − `lin-hist`) ⊂ [−0,05 ; +0,05].
+- **C3b-H9** : (`lin-elu1` − `hybride-elu1`) ≥ 0,5 × (`lin-elu1` − `smax`), avec IC 95 % de l'écart `lin-elu1` − `smax` > 0.
+
+### 3. Protocole (commité avant l'expérience)
+9 variantes × 5 seeds neufs (11, 22, 33, 44, 55) = 45 runs, 1 800 pas, réglages C2/C3, métrique = minimum de la perte sur la **val entière** (`val_entiere_min`), comparaisons appariées par seed.
+`python scripts/lancer_parallele.py --cycle c3b --variantes --configs smax hybride-hist hybride-elu1 lin-hist lin-elu1 lin-hist-nk dlind-hist dlind-elu1 dlind-const --seeds 11 22 33 44 55` puis `python scripts/analyse_c3b.py`.
+
+### 4. Résultats (val entière min, moyenne de 5 seeds)
+
+| Variante | moyenne | écart type (ddof = 1) | val @1800 |
+|---|---|---|---|
+| `smax` | 2.1613 | 0.0219 | 3.1032 |
+| `hybride-hist` | 2.1533 | 0.0297 | 2.5365 |
+| `hybride-elu1` | 2.2004 | 0.0204 | 3.0425 |
+| `lin-hist` | 2.2543 | 0.0073 | 2.7569 |
+| `lin-elu1` | 2.2347 | 0.0118 | 3.1427 |
+| `lin-hist-nk` | 2.2622 | 0.0096 | 2.5180 |
+| `dlind-hist` | 1.9021 | 0.0199 | 2.0238 |
+| `dlind-elu1` | 1.9967 | 0.0094 | 2.4471 |
+| `dlind-const` | **1.8591** | 0.0219 | **1.9168** |
+
+Référence non neuronale (n-gramme Kneser-Ney, même val) : **1.6827**.
+
+| # | Différence | IC 95 % | Verdict |
+|---|---|---|---|
+| C3b-H5 | −0.0430 | [−0.0617 ; −0.0243] | indéterminée (équivalence à ±0,05 non atteinte) |
+| C3b-H6 | +0.0946 | [+0.0585 ; +0.1307] | confirmée |
+| C3b-H7 | −0.1646 | [−0.1976 ; −0.1316] | confirmée |
+| C3b-H8 | +0.0079 | [−0.0066 ; +0.0224] | confirmée |
+| C3b-H9 | 47 % (seuil 50 %) | contraste −0.0024, IC [−0.0343 ; +0.0295] | infirmée de peu, dans le bruit |
+
+Vérifications : 45 runs complets, même commit `109319f` (code non modifié), calculs refaits par un second script, rejeu exact (octets et poids) de `dlind-const` s33 et `dlind-hist` s33. Détail : `propositions/RESULTATS_C3b.md`.
+
+### 5. Analyse
+1. `dlind` reste devant `smax` avec la φ correcte (5/5 seeds) : la conclusion de C3 tient sur ce point, avec un écart plus petit (−0,165 au lieu de −0,26).
+2. La φ historique aidait `dlind` (+0,095 sans elle, et plus de sur-apprentissage : val@1800 2,02 → 2,45) : H4/H4b sont à ré-attribuer en partie à φ.
+3. `dlind-const` (sans requête ni clé) fait au moins aussi bien que `dlind` (−0,043, 5/5 seeds). Le gain de `dlind` n'exige pas d'adressage par contenu sur ces données. Lecture faite après coup ; le verdict pré-enregistré est « indéterminée ».
+4. H9 : le ratio de rattrapage (47 %, seuil 50 %) dépend de la φ ; il n'est pas au-dessus de 50 % de façon fiable (IC du contraste contient 0, seed 55 négatif).
+5. Aucune variante n'égale le n-gramme (1,683) : à 11 Ko, ces écarts mesurent probablement surtout la régularisation.
+
+### 6. Décision
+**Proposée : PIVOTER vers un corpus plus grand** (train / val / test séparés) avant toute conclusion sur le mécanisme. La suite est décrite dans `propositions/PROMPT_RELEVE.md`. Le passage à 8 seeds prévu pour H5 et H9 n'a pas été lancé (15 runs, environ 1 h sur la machine locale) : à décider.

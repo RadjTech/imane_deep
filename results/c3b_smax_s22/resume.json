@@ -1,0 +1,18 @@
+{
+ "variante": "smax",
+ "types": [
+  "smax",
+  "smax"
+ ],
+ "phi": "hist",
+ "cles_normalisees": false,
+ "delta": "ref",
+ "seed": 22,
+ "params": 240480,
+ "val_min": 2.1505417823791504,
+ "val_min_step": 600,
+ "val_final": 3.1192212104797363,
+ "train_final": 0.3010914623737335,
+ "val_entiere_min": 2.1654276609420777,
+ "val_entiere_final": 3.0682065211809597
+}

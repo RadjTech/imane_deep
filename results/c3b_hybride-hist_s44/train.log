@@ -1,0 +1,20 @@
+    0 | train 4.3631 | val 4.3553 | val entière 4.3545 | 2s
+  100 | train 2.4567 | val 2.4520 | val entière 2.4531 | 31s
+  200 | train 2.2862 | val 2.3224 | val entière 2.3233 | 60s
+  300 | train 2.2642 | val 2.2735 | val entière 2.2800 | 88s
+  400 | train 2.2081 | val 2.2578 | val entière 2.2533 | 115s
+  500 | train 2.0712 | val 2.2573 | val entière 2.2510 | 143s
+  600 | train 1.9109 | val 2.1851 | val entière 2.1827 | 170s
+  700 | train 1.8718 | val 2.1429 | val entière 2.1530 | 199s
+  800 | train 1.7178 | val 2.1322 | val entière 2.1445 | 227s
+  900 | train 1.6567 | val 2.1882 | val entière 2.1671 | 252s
+ 1000 | train 1.4501 | val 2.2215 | val entière 2.2089 | 277s
+ 1100 | train 1.3613 | val 2.1893 | val entière 2.2050 | 301s
+ 1200 | train 1.3099 | val 2.2914 | val entière 2.2530 | 325s
+ 1300 | train 1.1683 | val 2.2921 | val entière 2.2964 | 349s
+ 1400 | train 1.1273 | val 2.3584 | val entière 2.3454 | 374s
+ 1500 | train 1.0656 | val 2.3873 | val entière 2.3760 | 398s
+ 1600 | train 0.9952 | val 2.4515 | val entière 2.3903 | 422s
+ 1700 | train 1.0038 | val 2.4339 | val entière 2.4179 | 446s
+ 1800 | train 0.9652 | val 2.4731 | val entière 2.4409 | 470s
+RÉSUMÉ : {"variante": "hybride-hist", "types": ["lin", "smax"], "phi": "hist", "cles_normalisees": false, "delta": "ref", "seed": 44, "params": 240480, "val_min": 2.132218360900879, "val_min_step": 800, "val_final": 2.4731316566467285, "train_final": 0.9651773571968079, "val_entiere_min": 2.1445101811335636, "val_entiere_final": 2.440854498056265}

@@ -1,0 +1,20 @@
+    0 | train 4.3873 | val 4.3700 | val entière 4.3650 | 2s
+  100 | train 2.4722 | val 2.4365 | val entière 2.4294 | 27s
+  200 | train 2.3092 | val 2.3201 | val entière 2.3250 | 51s
+  300 | train 2.2068 | val 2.2570 | val entière 2.2613 | 75s
+  400 | train 2.1321 | val 2.2551 | val entière 2.2460 | 98s
+  500 | train 2.0469 | val 2.2340 | val entière 2.2347 | 122s
+  600 | train 1.8832 | val 2.2238 | val entière 2.2389 | 148s
+  700 | train 1.6486 | val 2.2579 | val entière 2.2454 | 172s
+  800 | train 1.5493 | val 2.2877 | val entière 2.2711 | 196s
+  900 | train 1.3355 | val 2.3440 | val entière 2.3577 | 219s
+ 1000 | train 1.1194 | val 2.4121 | val entière 2.4164 | 248s
+ 1100 | train 0.9841 | val 2.5557 | val entière 2.5316 | 275s
+ 1200 | train 0.8297 | val 2.7148 | val entière 2.6518 | 299s
+ 1300 | train 0.6767 | val 2.7304 | val entière 2.7703 | 323s
+ 1400 | train 0.5651 | val 2.9094 | val entière 2.8792 | 347s
+ 1500 | train 0.5145 | val 2.9686 | val entière 2.9260 | 371s
+ 1600 | train 0.4915 | val 2.9876 | val entière 2.9892 | 395s
+ 1700 | train 0.4716 | val 3.0618 | val entière 3.0559 | 421s
+ 1800 | train 0.4092 | val 3.1590 | val entière 3.0937 | 445s
+RÉSUMÉ : {"variante": "lin-elu1", "types": ["lin", "lin"], "phi": "elu1", "cles_normalisees": false, "delta": "ref", "seed": 22, "params": 240480, "val_min": 2.223844051361084, "val_min_step": 600, "val_final": 3.1589903831481934, "train_final": 0.4091872274875641, "val_entiere_min": 2.234742511235751, "val_entiere_final": 3.0936827146089994}

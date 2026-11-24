@@ -1,0 +1,18 @@
+{
+ "variante": "lin-hist-nk",
+ "types": [
+  "lin",
+  "lin"
+ ],
+ "phi": "hist",
+ "cles_normalisees": true,
+ "delta": "ref",
+ "seed": 55,
+ "params": 240480,
+ "val_min": 2.289776086807251,
+ "val_min_step": 400,
+ "val_final": 2.5468218326568604,
+ "train_final": 1.4484620094299316,
+ "val_entiere_min": 2.277815496004545,
+ "val_entiere_final": 2.551454945710989
+}

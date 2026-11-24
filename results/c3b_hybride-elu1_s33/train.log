@@ -1,0 +1,20 @@
+    0 | train 4.3650 | val 4.3502 | val entière 4.3507 | 2s
+  100 | train 2.5117 | val 2.4436 | val entière 2.4431 | 30s
+  200 | train 2.2916 | val 2.2892 | val entière 2.2946 | 58s
+  300 | train 2.1764 | val 2.2359 | val entière 2.2455 | 85s
+  400 | train 2.1279 | val 2.2213 | val entière 2.2237 | 113s
+  500 | train 1.9085 | val 2.2088 | val entière 2.2036 | 140s
+  600 | train 1.9147 | val 2.2205 | val entière 2.2193 | 168s
+  700 | train 1.5711 | val 2.2311 | val entière 2.2412 | 195s
+  800 | train 1.5863 | val 2.2615 | val entière 2.2435 | 243s
+  900 | train 1.3122 | val 2.3264 | val entière 2.3328 | 275s
+ 1000 | train 1.1257 | val 2.4540 | val entière 2.4202 | 317s
+ 1100 | train 1.0450 | val 2.5430 | val entière 2.5410 | 350s
+ 1200 | train 0.8991 | val 2.6027 | val entière 2.6510 | 383s
+ 1300 | train 0.7690 | val 2.7315 | val entière 2.7216 | 415s
+ 1400 | train 0.6283 | val 2.8448 | val entière 2.8067 | 443s
+ 1500 | train 0.6133 | val 2.9051 | val entière 2.9085 | 467s
+ 1600 | train 0.5454 | val 3.0028 | val entière 2.9311 | 492s
+ 1700 | train 0.5259 | val 2.9912 | val entière 2.9934 | 516s
+ 1800 | train 0.5131 | val 3.0093 | val entière 3.0475 | 541s
+RÉSUMÉ : {"variante": "hybride-elu1", "types": ["lin", "smax"], "phi": "elu1", "cles_normalisees": false, "delta": "ref", "seed": 33, "params": 240480, "val_min": 2.2088394165039062, "val_min_step": 500, "val_final": 3.009303331375122, "train_final": 0.5131335854530334, "val_entiere_min": 2.2036127237173226, "val_entiere_final": 3.047483290158785}

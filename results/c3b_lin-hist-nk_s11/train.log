@@ -1,0 +1,20 @@
+    0 | train 4.3870 | val 4.3799 | val entière 4.3790 | 2s
+  100 | train 2.4779 | val 2.4297 | val entière 2.4256 | 38s
+  200 | train 2.3925 | val 2.3311 | val entière 2.3221 | 64s
+  300 | train 2.2641 | val 2.2941 | val entière 2.2996 | 88s
+  400 | train 2.2259 | val 2.2809 | val entière 2.2829 | 112s
+  500 | train 2.1784 | val 2.2754 | val entière 2.2693 | 140s
+  600 | train 2.1548 | val 2.2589 | val entière 2.2533 | 170s
+  700 | train 2.0797 | val 2.2882 | val entière 2.2768 | 200s
+  800 | train 2.0720 | val 2.2703 | val entière 2.2783 | 230s
+  900 | train 1.9941 | val 2.3163 | val entière 2.2936 | 260s
+ 1000 | train 1.9246 | val 2.3226 | val entière 2.3083 | 288s
+ 1100 | train 1.8197 | val 2.3320 | val entière 2.3412 | 313s
+ 1200 | train 1.7358 | val 2.3490 | val entière 2.3703 | 338s
+ 1300 | train 1.6934 | val 2.4184 | val entière 2.3915 | 362s
+ 1400 | train 1.6179 | val 2.4392 | val entière 2.4324 | 386s
+ 1500 | train 1.5551 | val 2.4099 | val entière 2.4177 | 410s
+ 1600 | train 1.5613 | val 2.4742 | val entière 2.4704 | 434s
+ 1700 | train 1.5279 | val 2.4712 | val entière 2.4799 | 465s
+ 1800 | train 1.5055 | val 2.5121 | val entière 2.5010 | 511s
+RÉSUMÉ : {"variante": "lin-hist-nk", "types": ["lin", "lin"], "phi": "hist", "cles_normalisees": true, "delta": "ref", "seed": 11, "params": 240480, "val_min": 2.2589333057403564, "val_min_step": 600, "val_final": 2.5120835304260254, "train_final": 1.5055041313171387, "val_entiere_min": 2.2532564603365386, "val_entiere_final": 2.5010266909232506}

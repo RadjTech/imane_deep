@@ -1,0 +1,18 @@
+{
+ "variante": "dlind-elu1",
+ "types": [
+  "dlind",
+  "dlind"
+ ],
+ "phi": "elu1",
+ "cles_normalisees": false,
+ "delta": "ref",
+ "seed": 11,
+ "params": 240488,
+ "val_min": 1.9786930084228516,
+ "val_min_step": 800,
+ "val_final": 2.485872268676758,
+ "train_final": 0.7736660838127136,
+ "val_entiere_min": 1.99294920701247,
+ "val_entiere_final": 2.472052891437824
+}

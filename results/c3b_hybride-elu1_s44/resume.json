@@ -1,0 +1,18 @@
+{
+ "variante": "hybride-elu1",
+ "types": [
+  "lin",
+  "smax"
+ ],
+ "phi": "elu1",
+ "cles_normalisees": false,
+ "delta": "ref",
+ "seed": 44,
+ "params": 240480,
+ "val_min": 2.155897617340088,
+ "val_min_step": 800,
+ "val_final": 2.975217580795288,
+ "train_final": 0.5645267963409424,
+ "val_entiere_min": 2.174208485163175,
+ "val_entiere_final": 2.9174097281235913
+}

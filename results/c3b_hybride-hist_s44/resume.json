@@ -1,0 +1,18 @@
+{
+ "variante": "hybride-hist",
+ "types": [
+  "lin",
+  "smax"
+ ],
+ "phi": "hist",
+ "cles_normalisees": false,
+ "delta": "ref",
+ "seed": 44,
+ "params": 240480,
+ "val_min": 2.132218360900879,
+ "val_min_step": 800,
+ "val_final": 2.4731316566467285,
+ "train_final": 0.9651773571968079,
+ "val_entiere_min": 2.1445101811335636,
+ "val_entiere_final": 2.440854498056265
+}

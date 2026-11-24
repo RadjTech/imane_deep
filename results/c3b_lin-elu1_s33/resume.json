@@ -1,0 +1,18 @@
+{
+ "variante": "lin-elu1",
+ "types": [
+  "lin",
+  "lin"
+ ],
+ "phi": "elu1",
+ "cles_normalisees": false,
+ "delta": "ref",
+ "seed": 33,
+ "params": 240480,
+ "val_min": 2.2397167682647705,
+ "val_min_step": 400,
+ "val_final": 3.0856423377990723,
+ "train_final": 0.4786175787448883,
+ "val_entiere_min": 2.2382362072284403,
+ "val_entiere_final": 3.1188664289621206
+}
