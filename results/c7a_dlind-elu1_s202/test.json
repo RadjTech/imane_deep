@@ -1,0 +1,16 @@
+{
+ "run": "results/c7a_dlind-elu1_s202",
+ "variante": "dlind-elu1",
+ "seed": 202,
+ "min_compte": 20,
+ "fenetre": 96,
+ "test": 1.8462885068677464,
+ "fenetres_test": 51347,
+ "inconnus_test": 0,
+ "car_test": 51348,
+ "test_oeuvres": 2.0519230219191207,
+ "fenetres_oeuvres": 1234421,
+ "inconnus_oeuvres": 13294,
+ "car_oeuvres": 1234422,
+ "rss_mo_eval": 60.66796875
+}

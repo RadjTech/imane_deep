@@ -1,0 +1,20 @@
+    0 | train 4.5084 | val 4.5010 | val entière 4.5023 | 13s
+  100 | train 2.5697 | val 2.5294 | val entière 2.5288 | 29s
+  200 | train 2.3831 | val 2.4116 | val entière 2.4096 | 45s
+  300 | train 2.3956 | val 2.3757 | val entière 2.3743 | 60s
+  400 | train 2.3631 | val 2.3498 | val entière 2.3568 | 75s
+  500 | train 2.3890 | val 2.3360 | val entière 2.3386 | 89s
+  600 | train 2.3016 | val 2.3222 | val entière 2.3173 | 103s
+  700 | train 2.2690 | val 2.3069 | val entière 2.2988 | 117s
+  800 | train 2.3232 | val 2.2638 | val entière 2.2722 | 134s
+  900 | train 2.1795 | val 2.2342 | val entière 2.2500 | 150s
+ 1000 | train 2.2672 | val 2.2313 | val entière 2.2381 | 165s
+ 1100 | train 2.2218 | val 2.2230 | val entière 2.2166 | 180s
+ 1200 | train 2.2011 | val 2.2209 | val entière 2.2061 | 194s
+ 1300 | train 2.1329 | val 2.1915 | val entière 2.1943 | 209s
+ 1400 | train 2.1847 | val 2.1839 | val entière 2.1877 | 225s
+ 1500 | train 2.1880 | val 2.1781 | val entière 2.1763 | 239s
+ 1600 | train 2.1206 | val 2.1694 | val entière 2.1691 | 252s
+ 1700 | train 2.2273 | val 2.1848 | val entière 2.1640 | 266s
+ 1800 | train 2.1913 | val 2.1519 | val entière 2.1595 | 281s
+RÉSUMÉ : {"variante": "lin-hist", "types": ["lin", "lin"], "phi": "hist", "cles_normalisees": false, "delta": "ref", "seed": 101, "params": 242016, "val_min": 2.1519055366516113, "val_min_step": 1800, "val_final": 2.1519055366516113, "train_final": 2.1913046836853027, "val_entiere_min": 2.1594627978936756, "val_entiere_final": 2.1594627978936756}

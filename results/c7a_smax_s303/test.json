@@ -1,0 +1,16 @@
+{
+ "run": "results/c7a_smax_s303",
+ "variante": "smax",
+ "seed": 303,
+ "min_compte": 20,
+ "fenetre": 96,
+ "test": 1.8185121217558609,
+ "fenetres_test": 51347,
+ "inconnus_test": 0,
+ "car_test": 51348,
+ "test_oeuvres": 2.0282713333574005,
+ "fenetres_oeuvres": 1234421,
+ "inconnus_oeuvres": 13294,
+ "car_oeuvres": 1234422,
+ "rss_mo_eval": 54.8359375
+}

@@ -28,13 +28,14 @@ def quantile_t(p, ddl):
     const = math.gamma(x) / (math.sqrt(ddl * math.pi) * math.gamma(ddl / 2.0))
 
     def cdf(t):
+        """CDF complète : 0.5 (moitié négative) + intégrale de 0 à t (densité symétrique)."""
         n = 4000
         pas = t / n
         s = 0.0
         for i in range(n):
             u = (i + 0.5) * pas
             s += (1.0 + u * u / ddl) ** (-(ddl + 1) / 2.0) * pas
-        return const * s
+        return 0.5 + const * s
 
     lo, hi = -20.0, 20.0
     for _ in range(200):
@@ -58,8 +59,8 @@ def main():
             if not os.path.exists(f"{d}/checkpoint.npz"):
                 problemes.append(f"{d} : checkpoint.npz absent")
             h = open(f"{d}/historique.csv").read().strip().split("\n")
-            if len(h) != 19:
-                problemes.append(f"{d} : historique {len(h)} lignes (attendu 19)")
+            if len(h) != 20:   # en-tête + 19 points (0 à 1800 par 100)
+                problemes.append(f"{d} : historique {len(h)} lignes (attendu 20)")
             r = json.load(open(f"{d}/resume.json"))
             if abs(r["val_final"] - float(h[-1].split(",")[2])) > 1e-6:
                 problemes.append(f"{d} : resume.val_final ≠ historique")

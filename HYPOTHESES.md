@@ -69,3 +69,10 @@
 - **C3b-H8** — normaliser les clés seule ne suffit pas (IC ⊂ ±0,05) : ✅ **confirmée** (+0,0079).
 - **C3b-H9** — l'hybride rattrape la moitié de l'écart `lin` → `smax` avec φ correcte : ❌ **infirmée de peu** (47 % contre 50 % ; IC du contraste contient 0).
 - **Conséquence** : le mécanisme « adressage par clés » n'est pas soutenu par ces mesures ; H4/H4b sont à ré-attribuer en partie à φ. Le corpus de 11 Ko (n-gramme 1,683 devant tous les modèles) est le premier verrou.
+
+## C7 — Validation sur corpus réel (fr1m, 5 seeds, étiquettes locales C7-V…)
+- **C7-V1 (dlind-elu1 bat smax sur le test à 1 Mo)** : ❌ **infirmée** — +0.0169 nat, IC [+0.0122 ; +0.0216], 5/5 seeds. À 1 Mo, smax redevient meilleur ; les avantages mesurés à 11 Ko étaient de la régularisation.
+- **C7-V2 (la version simple dlind-const suffit)** : ✅ **confirmée** — borne haute de l'IC = +0.0182 ≤ +0.05 (dlind-const suit dlind-elu1 de +0.010 nat).
+- **C7-V3 (φ historique ou φ corrigée ?)** : **la φ corrigée est meilleure** à 1 Mo (−0.0074, IC [−0.0138 ; −0.0009]) — l'inverse de C3b-H6 (petit corpus).
+- **C7-V4 (réseau vs n-gramme)** : descriptif — aucun réseau ne bat le n-gramme (1.8166 vs 1.3402 sur la val, marge 0.48 nat).
+- Détail : `propositions/RESULTATS_C7.md`, entrée C7 de `RESEARCH_LOG.md`.

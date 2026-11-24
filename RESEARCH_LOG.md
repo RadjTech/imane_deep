@@ -345,3 +345,61 @@ Vérifications : 45 runs complets, même commit `109319f` (code non modifié), c
 
 ### 6. Décision
 **Proposée : PIVOTER vers un corpus plus grand** (train / val / test séparés) avant toute conclusion sur le mécanisme. La suite est décrite dans `propositions/PROMPT_RELEVE.md`. Le passage à 8 seeds prévu pour H5 et H9 n'a pas été lancé (15 runs, environ 1 h sur la machine locale) : à décider.
+
+---
+
+## Cycle C7 — Validation sur corpus réel (fr1m, 998 K caractères, wikisource)
+
+**Date** : 2026-11-24 · **Statut** : ✅ terminé — C7-V1 INFIRMÉE (smax bat dlind à 1 Mo), C7-V2 confirmée (la version simple suffit), C7-V3 : la φ corrigée est meilleure · **Étiquettes locales C7-V…** (H5/H6 déjà pris par C5 et C3b)
+
+> Protocole + scripts pré-enregistrés commités avant tout run (`43f9144`) ; données :
+> `propositions/RAPPORT_DONNEES.md` + `data/SOURCES.md` (fr.wikisource.org, gutenberg.org
+> 503 depuis ce bac à sable) ; test_oeuvres = Huysmans + About (hors corpus).
+> Vérification indépendante : IDENTIQUE (4.9e-05) après correction d'un bug de quantile
+> dans le second script (amendement n°1, avant toute lecture des verdicts).
+
+### 1. Question
+Les conclusions de C3b (corpus 11 Ko) tiennent-elles sur 1 Mo de prose française réelle ?
+### 2. Critères pré-enregistrés (avant les runs)
+- **C7-V1** : IC(dlind-elu1 − smax) < 0 sur le test → confirmée.
+- **C7-V2** : borne haute de IC(dlind-const − dlind-elu1) ≤ +0.05 → confirmée.
+- **C7-V3** : signe de IC(dlind-elu1 − dlind-hist).
+- **C7-V4** : descriptif — meilleur réseau vs n-gramme (même val).
+
+### 3. Protocole
+5 variantes {smax, lin-hist, dlind-hist, dlind-elu1, dlind-const} × 5 seeds {101, 202, 303, 404, 505},
+1 800 pas, réglages C3b, corpus fr1m ; métrique principale = TEST (une évaluation, poids
+finaux) ; secondaires : val, test_oeuvres, vitesse ; n-gramme en référence.
+
+### 4. Résultats (test, moyenne ± écart type)
+
+| smax | dlind-elu1 | dlind-hist | dlind-const | lin-hist | n-gramme (val) |
+|---|---|---|---|---|---|
+| **1.8223 ± 0.0074** | 1.8392 ± 0.0075 | 1.8466 ± 0.0069 | 1.8495 ± 0.0061 | 2.1611 ± 0.0057 | **1.3402** |
+
+| # | différence | IC 95 % | verdict |
+|---|---|---|---|
+| C7-V1 | dlind-elu1 − smax = **+0.0169** | [+0.0122 ; +0.0216] | **infirmée** (smax mieux, 5/5) |
+| C7-V2 | dlind-const − dlind-elu1 = +0.0102 | [+0.0023 ; +0.0182] | **confirmée** |
+| C7-V3 | dlind-elu1 − dlind-hist = **−0.0074** | [−0.0138 ; −0.0009] | **φ corrigée meilleure** |
+| C7-V4 | 1.8166 vs 1.3402 (val) | — | le n-gramme bat tous les réseaux |
+
+### 5. Analyse
+1. Le verdict C3b (dlind > smax à 11 Ko) ne se généralise pas : à 1 Mo, smax gagne de
+   0.017 sans chevauchement des seeds — les mesures petit-corpus mesuraient surtout la
+   régularisation (cf. n-gramme 1.683 à 11 Ko).
+2. Ce qui tient : lin reste très loin (écart lin→dlind = 0.32, ×15 l'écart dlind↔smax) et
+   dlind-const suit dlind-elu1 à +0.01 → l'essentiel du gain est l'oubli borné, pas
+   l'adressage par contenu.
+3. La φ corrigée redevient la meilleure avec de vraies données (à 11 Ko, la φ historique
+   faisait régulariseur).
+4. Tous les modèles sont en sous-apprentissage (val@1800 < val_min, 5/5 variantes) : le
+   budget 1 800 pas borne la comparaison ; le n-gramme (1.34) reste le champion absolu.
+   Détail complet : `propositions/RESULTATS_C7.md`.
+
+### 6. Décision
+C7 ✅ terminé — résultat négatif consigné comme tel : **à 1 Mo, la delta rule ne bat pas
+l'attention softmax** (écart petit mais significatif) ; la version simple suffit ; la φ
+corrigée est retenue pour les cycles futurs. Suites proposées (non lancées, à arbitrer) :
+fr5m avec `--pas-eval`, budget d'entraînement étendu (sous-apprentissage général),
+capacité doublée pour attaquer le plancher du n-gramme (1.34). C6 (budget) reste réservé.

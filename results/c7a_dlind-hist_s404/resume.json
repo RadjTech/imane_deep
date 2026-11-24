@@ -1,0 +1,18 @@
+{
+ "variante": "dlind-hist",
+ "types": [
+  "dlind",
+  "dlind"
+ ],
+ "phi": "hist",
+ "cles_normalisees": false,
+ "delta": "ref",
+ "seed": 404,
+ "params": 242024,
+ "val_min": 1.8279287815093994,
+ "val_min_step": 1800,
+ "val_final": 1.8279287815093994,
+ "train_final": 1.859140396118164,
+ "val_entiere_min": 1.8441340372507993,
+ "val_entiere_final": 1.8441340372507993
+}
