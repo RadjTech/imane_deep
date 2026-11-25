@@ -33,3 +33,18 @@
 | dlind-elu1 | 3 791 (plat) | état 19 Ko | +0.93 % |
 | dlind-const | 5 513 (plat) | état 0.8 Ko | +1.49 % |
 Détail : propositions/RESULTATS_C9.md. Qualité provisoire (C7) — C8 la remplacera.
+
+## 25/11 — C8 (45 runs GitHub Actions) : REÇU ET VÉRIFIÉ ✔
+
+**Fait.** Pull (les 45 runs + analyse officielle + rapport brut) ; intégrité 45/45 ✔ ;
+vérification indépendante `verif_c8_github.py` : IDENTIQUE à l'analyse officielle ;
+`RESULTATS_C8.md` + journal + hypothèses écrits et poussés.
+
+**Résultat.** smax reste devant à tous les budgets (V1/V2/V3 infirmées) ; MAIS le meilleur
+réseau (smax, 18 000 pas) est à **0.0064 nat du compteur de lettres** sur la val (C7 : 0.48)
+— le tableau de décision dit : données ensuite (fr5m_v2). La version simple ne suffit plus
+à 18 000 pas (+0.065 > +0.05). Coût (C9) : dlind-const reste 6× plus rapide à long contexte
+avec 0.8 Ko d'état — le compromis qualité/coût reste son argument.
+
+**Suite.** C10 (T=256, 5 400 pas, 3 seeds, protocole commité avant — local) ; puis cycle
+données fr5m_v2. Plafond 72 h de calcul : ~1 h utilisée à ce jour (hors C8 GitHub).

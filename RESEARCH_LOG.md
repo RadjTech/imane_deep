@@ -413,3 +413,31 @@ comparait deux mesures différentes) → 1 800 pas trop court → C8 (budget) la
 Actions. Deux défauts de données réparés : `test_oeuvres_v2` (140 ¤) et `fr5m_v2`
 (0 copie de 60 caractères, `scripts/verifier_corpus.py` conforme) — voir
 `propositions/RAPPORT_DONNEES.md` amendement n°1.
+
+---
+
+## Cycle C8 — Le budget d'entraînement (GitHub Actions, 45/45 runs) (2026-11-25)
+
+**Statut** : ✅ terminé — C8-V0 confirmée (réplication : smax devant à 1 800 pas) ; C8-V1/V2/V3 INFIRMÉES (smax reste devant à 5 400 et 18 000 ; la version simple ne suffit plus à 18 000) ; C8-V4 : l'avantage de smax grandit avec le budget ; C8-V5 (descriptif) : smax 1.3466 sur la val, à **0.0064 nat du n-gramme** (1.3402) — écart passé de 0.48 (C3b) à 0.006.
+
+> Protocole commité avant les runs (46daced) ; vérification indépendante IDENTIQUE
+> (`scripts/verif_c8_github.py` → `results/c8g_verification.json`) ; aucun IC indéterminé,
+> pas d'amendement seeds. Détail : `propositions/RESULTATS_C8.md`.
+
+### Résultats (test_best, moyenne ± écart type, 5 seeds)
+
+| variante | 1 800 | 5 400 | 18 000 |
+|---|---|---|---|
+| smax | 1.8204 ± 0.0097 | 1.4935 ± 0.0072 | **1.3577 ± 0.0041** |
+| dlind-elu1 | 1.8352 ± 0.0020 | 1.5803 ± 0.0037 | 1.3942 ± 0.0026 |
+| dlind-const | 1.8492 ± 0.0021 | 1.6236 ± 0.0039 | 1.4588 ± 0.0019 |
+
+Différences appariées (dlind-elu1 − smax) : +0.0148 → +0.0868 → +0.0364 (forme non monotone, culmine à 5 400) ; dlind-const − dlind-elu1 @18 000 = +0.0646 (> seuil +0.05).
+
+### Analyse
+1. Plus de budget ne fait pas gagner la delta rule (3 IC sans chevauchement, 5/5 seeds) — résultat négatif consigné.
+2. La qualité absolue explose : smax 1.82 → 1.3577 ; tous les runs finissent à leur minimum (pas_best = dernier pas) → encore du gain disponible.
+3. Le n-gramme n'est plus une borne : 0.006 nat sur la val — le tableau de décision indique **données ensuite** (fr5m_v2, --pas-eval 96).
+
+### Décision
+C8 ✅ terminé. Suite : C10 (T=256, protocole commité avant, local) + préparation du cycle données fr5m_v2. C6 reste réservé.

@@ -77,3 +77,12 @@
 - **C7-V4 (réseau vs n-gramme)** : descriptif — aucun réseau ne bat le n-gramme (1.8166 vs 1.3402 sur la val, marge 0.48 nat).
 - Détail : `propositions/RESULTATS_C7.md`, entrée C7 de `RESEARCH_LOG.md`.
 - **Amendements n°2/n°3 (25/11)** : chiffres « œuvres » invalides remplacés (`test_oeuvres_v2`, mêmes checkpoints) — ordre inchangé, verdicts inchangés ; correction de la phrase « sous-apprentissage » (25/25 runs au minimum au pas 1 800 sur la val entière → 1 800 pas trop court).
+
+## C8 — Budget d'entraînement (GitHub Actions, étiquettes C8-V0..V5)
+- **C8-V0 (réplication : smax devant dlind-elu1 à 1 800 pas)** : ✅ confirmée (+0.0148, IC [+0.0029 ; +0.0267]).
+- **C8-V1 (dlind-elu1 bat smax à 18 000 pas)** : ❌ infirmée (+0.0364, IC [+0.0314 ; +0.0415], 5/5).
+- **C8-V2 (dlind-elu1 bat smax à 5 400 pas)** : ❌ infirmée (+0.0868, IC [+0.0787 ; +0.0950], 5/5) — l'écart culmine à 5 400 puis rétrécit (+0.0364 @18 000) sans se fermer.
+- **C8-V3 (dlind-const suffit à 18 000 pas, ≤ +0.05)** : ❌ infirmée (+0.0646, IC [+0.0622 ; +0.0671]).
+- **C8-V4 (l'écart évolue avec le budget)** : oui — +0.0216 IC [+0.0098 ; +0.0335] entre les extrémités : l'avantage de smax grandit au total.
+- **C8-V5 (descriptif)** : meilleur réseau (smax, val 1.3466) à 0.0064 nat du n-gramme (1.3402) ; sur le test 1.3577.
+- Détail : `propositions/RESULTATS_C8.md` ; vérification indépendante : `results/c8g_verification.json` (IDENTIQUE).
