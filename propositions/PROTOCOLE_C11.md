@@ -63,3 +63,16 @@ n-gramme ; historique.csv 28 lignes (0 à 5400 par 200).
 Main uniquement ; protocole avant les runs ; push en fin d'étape ; ne pas toucher aux
 results/ existants ni aux corpus déjà validés ; φ par défaut inchangée ; C6 réservé ;
 « établi » seulement avec IC tranché et ≥ 3 seeds ; résultats négatifs consignés.
+
+## Amendement n°1 (26/11/2026, avant tout run C11) — exécution sur GitHub Actions
+
+Seul le lieu d'exécution change, pour aller plus vite : les 9 runs tournent en même temps sur GitHub Actions
+(`.github/workflows/c11.yml`, un ordinateur par run, 1 thread, Python 3.13, NumPy 2.3.5), au lieu de 2 processus locaux
+après C10. Le programme (`scripts/c11_controles.py`), les variantes, les seeds 711/722/733, le budget de 5 400 pas,
+le pas d'évaluation 96, les critères et l'analyse (`scripts/analyse_c11.py`, `scripts/verif_c11.py`) sont **inchangés**.
+- Le n-gramme de fr5m_v2 est mesuré dans un job séparé, **en parallèle** des runs (et non avant) : il ne lit aucun
+  résultat des réseaux et ses réglages sont choisis sur la fin du train, comme prévu ; l'ordre n'a donc pas d'effet.
+- Les ordinateurs GitHub peuvent différer d'un run à l'autre : les pertes restent comparables (C8 l'a fait sur 45 runs),
+  les temps non.
+- `scripts/c11_serie.sh` n'est pas lancé en local pour ces 9 runs ; les résultats reviennent dans `results/c11_*`
+  (commit du robot GitHub), puis sont vérifiés comme prévu au §5.

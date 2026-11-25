@@ -1,0 +1,182 @@
+# C11 : 5 fois plus de texte (data/fr5m_v2), un ordinateur GitHub par essai (protocole : propositions/PROTOCOLE_C11.md, amendement n°1).
+# Déclenchement manuel uniquement : onglet Actions → « C11 donnees fr5m_v2 » → Run workflow.
+#   petit-essai : 2 essais de 200 pas, rien n'est enregistré (à faire en premier).
+#   complet     : les 9 essais du protocole + le n-gramme de fr5m_v2, puis enregistrement sur main par le robot GitHub.
+# Aucun secret, aucune entrée libre : la liste des essais vient du code (scripts/c11_matrice.py).
+name: C11 donnees fr5m_v2
+run-name: "C11 ${{ inputs.mode }}"
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "petit-essai : environ 10 min, rien d'enregistre. complet : environ 1 h, resultats enregistres sur main."
+        required: true
+        default: petit-essai
+        type: choice
+        options:
+          - petit-essai
+          - complet
+
+permissions:
+  contents: read
+
+concurrency:
+  group: c11-donnees
+  cancel-in-progress: false
+
+env:
+  OPENBLAS_NUM_THREADS: "1"
+  OMP_NUM_THREADS: "1"
+  MKL_NUM_THREADS: "1"
+  PYTHONIOENCODING: utf-8
+  PYTHONDONTWRITEBYTECODE: "1"
+
+jobs:
+  preparer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      matrice: ${{ steps.liste.outputs.matrice }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: pip install "numpy==2.3.5"
+      - name: Garde-fous
+        run: |
+          set -euo pipefail
+          python experiments/hybrid_numpy.py --check-grads
+          python scripts/gardefou_conformite.py
+          python scripts/c3b_controles.py --check
+          python scripts/c8_github.py --controle-c7 --variante smax
+      - name: Corpus fr5m_v2 conforme
+        run: python scripts/verifier_corpus.py --dossier data/fr5m_v2
+      - name: Liste des essais
+        id: liste
+        env:
+          MODE: ${{ inputs.mode }}
+        run: |
+          set -euo pipefail
+          python scripts/c11_matrice.py "$MODE" >> "$GITHUB_OUTPUT"
+
+  ngram:
+    if: ${{ inputs.mode == 'complet' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: n-gramme de reference sur fr5m_v2 (val entiere)
+        run: |
+          set -euo pipefail
+          mkdir -p results
+          python scripts/ngram_baseline.py --data data/fr5m_v2/corpus.txt --out results/c11_ngram_fr5m.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: c11_ngram
+          path: results/c11_ngram_fr5m.json
+          retention-days: 90
+
+  entrainer:
+    needs: preparer
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix: ${{ fromJSON(needs.preparer.outputs.matrice) }}
+    env:
+      VARIANTE: ${{ matrix.variante }}
+      SEED: ${{ matrix.seed }}
+      BUDGET: ${{ matrix.budget }}
+      TAG: ${{ matrix.tag }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: pip install "numpy==2.3.5"
+      - name: Entrainement
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$TAG" =~ ^c11(essai)?_[a-z0-9-]+_s[0-9]+$ ]] || { echo "nom d'essai inattendu"; exit 1; }
+          mkdir -p "results/$TAG"
+          python -u scripts/c11_controles.py --variante "$VARIANTE" --seed "$SEED" --max-steps "$BUDGET" \
+            --out-dir "results/$TAG" 2>&1 | tee train_run.log
+          mv train_run.log "results/$TAG/train.log"
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: ${{ matrix.tag }}
+          path: results/${{ matrix.tag }}/
+          retention-days: 90
+          if-no-files-found: warn
+
+  rassembler:
+    needs: [entrainer, ngram]
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: pip install "numpy==2.3.5"
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: c11*
+          path: artefacts
+      - name: Ranger les essais
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p results artefacts
+          if [ -f artefacts/c11_ngram/c11_ngram_fr5m.json ]; then cp artefacts/c11_ngram/c11_ngram_fr5m.json results/; fi
+          find artefacts -mindepth 1 -maxdepth 1 -type d ! -name c11_ngram -exec cp -r {} results/ \;
+          echo "Essais recuperes : $(find results -maxdepth 1 -type d -name 'c11*_s*' | wc -l)" | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Analyse pre-enregistree et verification
+        if: ${{ inputs.mode == 'complet' }}
+        shell: bash
+        run: |
+          set -uo pipefail
+          { python scripts/analyse_c11.py && python scripts/verif_c11.py; } > analyse.txt 2>&1 || echo "ANALYSE INCOMPLETE (essai manquant ?)" >> analyse.txt
+          { echo '```'; cat analyse.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: resultats-c11
+          path: |
+            results/c11*/
+            results/c11_ngram_fr5m.json
+            results/c11_analyse.json
+            analyse.txt
+            !**/*.npz
+          retention-days: 90
+          if-no-files-found: warn
+      - name: Enregistrer les resultats sur main (mode complet)
+        if: ${{ inputs.mode == 'complet' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if compgen -G "results/c11_*_s*" > /dev/null; then git add -- results/c11_*_s*; fi
+          for f in results/c11_ngram_fr5m.json results/c11_analyse.json; do if [ -f "$f" ]; then git add -- "$f"; fi; done
+          if git diff --cached --quiet; then echo "Rien a enregistrer"; exit 0; fi
+          git commit -q -m "C11 (GitHub Actions) : resultats bruts sur fr5m_v2"
+          for essai in 1 2 3; do
+            if git pull --rebase origin main && git push origin HEAD:main; then echo "Enregistre sur main"; exit 0; fi
+            sleep 20
+          done
+          echo "Envoi impossible : les resultats restent dans l'artefact resultats-c11"
+          exit 1
