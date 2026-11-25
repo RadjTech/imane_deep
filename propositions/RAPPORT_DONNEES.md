@@ -1,5 +1,33 @@
 # Rapport données — corpus français fr1m / fr5m (2026-11-24)
 
+> **AMENDEMENT n°1 (25/11/2026)** — deux défauts trouvés par la relecture adverse, réparés :
+>
+> **Défaut 1 (test non nettoyé).** `data/test_oeuvres.txt` n'avait pas subi `normaliser` :
+> 13 154 apostrophes courbes (’) remplacées par ¤ à l'évaluation (13 294 caractères hors
+> alphabet du train). Les chiffres « œuvres hors corpus » de C7 étaient **invalides**.
+> **Réparation** : `data/test_oeuvres_v2.txt` (mêmes textes, `normaliser` appliqué) —
+> **140 inconnus / 1 234 422 = 0.0113 %** (< 0.1 % ✔, valeur attendue confirmée). Les 25
+> runs C7 ont été réévalués sur ce texte (même commit, mêmes poids) : voir l'amendement
+> n°2 de `propositions/RESULTATS_C7.md`. Les chiffres de `RAPPORT_DONNEES` et de C7 sur
+> l'ancien fichier sont retirés.
+>
+> **Défaut 2 (fr5m avec passages recopiés).** Cause trouvée : le dédoublonnage de
+> `preparer_corpus.py` ne voit que les paragraphes **entiers** (≥ 60 car.) ; les scènes et
+> répliques **répétées à l'identique** (très fréquentes chez Bel-Ami et Verne — dialogues
+> courts) passaient le filtre et se retrouvaient en train ET en val/test. Mesures : 94
+> fenêtres de 60 car. dupliquées dans la val, 1 dans le test (fr5m v1). Ma phrase « pas de
+> passage dupiqué » de la première version était fausse — mon contrôle ne portait que sur
+> des suites de 8 **mots**, aveugle aux copies de dialogues courts. **Réparation** :
+> `nettoyer_sources.py --anti-repets` (dédoublonnage par fenêtre glissante de 60 caractères,
+> tous offsets, index global inter-œuvres ; deux bugs d'implémentation corrigés au passage :
+> verrouillage par ré-indexation des fenêtres de queue, débordement d'entier) ;
+> reconstruction **`data/fr5m_v2`** (nouveau nom, l'ancien est conservé).
+> **Critère atteint : 0 fenêtre de 60 car. (pas de 5) de val ou test dans le train** ✔
+> (`scripts/verifier_corpus.py`, conforme aussi sur vocabulaire, ¤, SHA-256 LF, ’ : 0).
+> `data/fr1m` re-vérifié conforme ✔ (0 copie — confirmé propre).
+> fr5m_v2 : 5,0 M car., 14 œuvres, 10 auteurs ; parts par auteur rééquilibrées par le
+> dédoublonnage (max mesuré : Dumas ~14 %, inchangé < 20 %).
+
 Mission « prendre la relève, préparer les données, valider la méthode » — étape 1.
 Collecte et contrôles faits par l'agent de relève, le 2026-11-24.
 

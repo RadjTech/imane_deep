@@ -1,5 +1,35 @@
 # Résultats C7 — validation sur corpus réel fr1m (2026-11-24)
 
+> **AMENDEMENT n°2 (25/11/2026) — chiffres « œuvres hors corpus » remplacés.**
+> `data/test_oeuvres.txt` n'avait pas été nettoyé comme le corpus : 13 294 caractères hors
+> alphabet (dont 13 154 apostrophes courbes ’) étaient comptés comme ¤. Les valeurs
+> `test_oeuvres` du tableau §1 et la mention « 2.0323 » en §3-5 étaient **invalides** (défaut
+> 1 documenté par le relecteur). Réparation : `data/test_oeuvres_v2.txt` (140 ¤ / 1 234 422 =
+> 0.0113 %), les **mêmes 25 checkpoints** réévalués (aucun run relancé, même commit `43f9144`).
+>
+> **test_oeuvres_v2 (poids finaux, 5 seeds)** — 140 caractères inconnus partout :
+>
+> | variante | moyenne ± écart type |
+> |---|---|
+> | `smax` | **1.8830 ± 0.0063** |
+> | `dlind-elu1` | 1.8967 ± 0.0047 |
+> | `dlind-hist` | 1.9044 ± 0.0045 |
+> | `dlind-const` | 1.9086 ± 0.0045 |
+> | `lin-hist` | 2.1864 ± 0.0054 |
+>
+> L'ordre des variantes est **inchangé** par rapport au test principal (smax < dlind-elu1 <
+> dlind-hist < dlind-const < lin-hist) : les verdicts C7-V1…V4 ne sont pas affectés.
+> Tout chiffre « œuvres » antérieur à cet amendement est retiré.
+
+> **AMENDEMENT n°3 (25/11/2026) — correction d'une phrase (§3 point 4).**
+> J'avais écrit « tous les modèles sont en sous-apprentissage : val@1800 < val_min » —
+> cela compare **deux mesures différentes** (val tirée en 10 batchs vs val entière
+> déterministe). Correction : sur la **même** mesure (val entière), les **25/25 runs
+> finissent à leur minimum au pas 1 800** (`val_entiere_min == val_entiere_final`) — donc
+> 1 800 pas est trop court (confirmé par la courbe à pas égaux du relecteur : dlind devant
+> smax jusqu'au pas ~1 250, smax devant ensuite). La conclusion reste : le budget borne la
+> comparaison — c'est exactement la question du cycle C8.
+
 > Protocole `PROTOCOLE_C7.md` commité **avant** tout run (`43f9144`, avec `analyse_c7.py`,
 > `c7_verification.py` et l'évaluateur `evaluer_test.py` — contrôle d'équivalence avec
 > `evaluer_fixe` : écart 0.0, 1 117 prédictions). Runs : `scripts/lancer_parallele.py`,

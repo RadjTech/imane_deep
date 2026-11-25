@@ -1,0 +1,46 @@
+{
+ "types": [
+  "dlindc",
+  "dlindc"
+ ],
+ "ckpt": "results/c7a_dlind-const_s101/checkpoint.npz",
+ "garde_a_parallele_vs_hn": 3.814697265625e-06,
+ "garde_b_incremental_vs_parallele": 3.814697265625e-06,
+ "garde_ok": true,
+ "v_gen_dans_distribution": {
+  "16": {
+   "tok_s": 402.3,
+   "prefill_tok_s": 64.4
+  },
+  "48": {
+   "tok_s": 328.5,
+   "prefill_tok_s": 157.7
+  },
+  "96": {
+   "tok_s": 222.4,
+   "prefill_tok_s": 213.5
+  }
+ },
+ "scaling_mecanisme": {
+  "256": {
+   "prefill_tok_s": 459.9,
+   "v_gen_tok_s": 446.7,
+   "kv_octets": 0
+  },
+  "1024": {
+   "prefill_tok_s": 429.7,
+   "v_gen_tok_s": 430.4,
+   "kv_octets": 0
+  },
+  "4096": {
+   "prefill_tok_s": 443.5,
+   "v_gen_tok_s": 439.8,
+   "kv_octets": 0
+  }
+ },
+ "memoire": {
+  "poids_octets": 968096,
+  "etat_lin_octets": 768,
+  "kv_octets": 0
+ }
+}

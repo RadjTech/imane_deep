@@ -76,3 +76,4 @@
 - **C7-V3 (φ historique ou φ corrigée ?)** : **la φ corrigée est meilleure** à 1 Mo (−0.0074, IC [−0.0138 ; −0.0009]) — l'inverse de C3b-H6 (petit corpus).
 - **C7-V4 (réseau vs n-gramme)** : descriptif — aucun réseau ne bat le n-gramme (1.8166 vs 1.3402 sur la val, marge 0.48 nat).
 - Détail : `propositions/RESULTATS_C7.md`, entrée C7 de `RESEARCH_LOG.md`.
+- **Amendements n°2/n°3 (25/11)** : chiffres « œuvres » invalides remplacés (`test_oeuvres_v2`, mêmes checkpoints) — ordre inchangé, verdicts inchangés ; correction de la phrase « sous-apprentissage » (25/25 runs au minimum au pas 1 800 sur la val entière → 1 800 pas trop court).

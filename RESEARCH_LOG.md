@@ -403,3 +403,13 @@ l'attention softmax** (écart petit mais significatif) ; la version simple suffi
 corrigée est retenue pour les cycles futurs. Suites proposées (non lancées, à arbitrer) :
 fr5m avec `--pas-eval`, budget d'entraînement étendu (sous-apprentissage général),
 capacité doublée pour attaquer le plancher du n-gramme (1.34). C6 (budget) reste réservé.
+
+**Amendements n°2 et n°3 (25/11/2026, voir `propositions/RESULTATS_C7.md`)** : (n°2) les
+chiffres « œuvres hors corpus » étaient invalides (texte de test non nettoyé : 13 294 ¤) ;
+réparés sur `test_oeuvres_v2` avec les mêmes checkpoints — l'ordre des variantes est
+inchangé, les verdicts tiennent. (n°3) correction d'une phrase : les 25/25 runs finissent
+**à leur minimum** au pas 1 800 sur la val entière (ma phrase « val@1800 < val_min »
+comparait deux mesures différentes) → 1 800 pas trop court → C8 (budget) lancé sur GitHub
+Actions. Deux défauts de données réparés : `test_oeuvres_v2` (140 ¤) et `fr5m_v2`
+(0 copie de 60 caractères, `scripts/verifier_corpus.py` conforme) — voir
+`propositions/RAPPORT_DONNEES.md` amendement n°1.

@@ -1,0 +1,84 @@
+{
+ "nom": "fr5m_v2",
+ "licence": "domaine public, voir SOURCES.md",
+ "seed": 0,
+ "sources": [
+  {
+   "fichier": "Balzac_Eug_nie_Grandet.txt",
+   "sha256": "e66c139e37edf26c9aa116e72df453e71ecd4f49d408849091c2518eb7f79c1e"
+  },
+  {
+   "fichier": "Balzac_Le_P_re_Goriot.txt",
+   "sha256": "bea5e06b11d6e3c3e42853206f35b17005c475efea23274c6ff57bd5659ff202"
+  },
+  {
+   "fichier": "Daudet_Tartarin_sur_les_Alpes.txt",
+   "sha256": "8f83a5d022ace26048f2d1ec5641b609eaf120f5721767f4afa96530bc924e63"
+  },
+  {
+   "fichier": "Dumas_La_Reine_Margot.txt",
+   "sha256": "60f849abe32538518a4430a8b6e4773b402bc1a53a69add260d7b6c04b471ae8"
+  },
+  {
+   "fichier": "Flaubert_Madame_Bovary.txt",
+   "sha256": "90b743d358af3949531ef72ad88ef6c71dc1d0a86e79a9fb4ab70ee103f0fd75"
+  },
+  {
+   "fichier": "Hugo_Notre_Dame_de_Paris.txt",
+   "sha256": "6cd299450758353cc6bd5e17c93a059564fd44e1b4e3cab50feac387d9f8298a"
+  },
+  {
+   "fichier": "Hugo_Quatre_vingt_treize.txt",
+   "sha256": "1c6ed37cac62df316658b29d606acfbceb57766192af6d744e1ca5a4bf22225b"
+  },
+  {
+   "fichier": "Maupassant_Bel_Ami.txt",
+   "sha256": "065fb838b3585a4c4bf390b8fa61d30901c83c9e814df1f1c47b0e38346c8e20"
+  },
+  {
+   "fichier": "Sand_La_Mare_au_diable.txt",
+   "sha256": "eb61ef65f8c04b6b95cb4d7c75393f84fbd15a0edfe001b3d27084af0e73d1a3"
+  },
+  {
+   "fichier": "Sand_La_Petite_Fadette.txt",
+   "sha256": "3533410c3f26622864e27a73ac1126cc6f6ad1b934d9454ee6e69746192c64c1"
+  },
+  {
+   "fichier": "Stendhal_Le_Rouge_et_le_Noir.txt",
+   "sha256": "2ca5897f77f8c6225940c909b735f46231a9072c1b2997d167385f4f4549caee"
+  },
+  {
+   "fichier": "Verne_De_la_Terre_la_Lune.txt",
+   "sha256": "8cca2d1c4e6acb3fd8d30b023e0780b8ffb23e984901870f47fa8f584ec3e8b4"
+  },
+  {
+   "fichier": "Verne_Le_Tour_du_monde_en_quatre_vingts_jours.txt",
+   "sha256": "2112b3d324f75fd2c827cb4702b25db36234dc654f158c8754198a5cbe537b57"
+  },
+  {
+   "fichier": "Zola_Germinal.txt",
+   "sha256": "18cc963a2bb7f16e58d27c25dea43924ed86aca46ae6728532fd4f574a47824b"
+  }
+ ],
+ "caracteres": {
+  "train": 4271445,
+  "val": 474605,
+  "test": 252780
+ },
+ "documents": {
+  "train": 1826,
+  "val": 209,
+  "test": 109
+ },
+ "paragraphes_dupliques_retires": 0,
+ "vocabulaire": 100,
+ "remplaces_par_inconnu": {
+  "train": 94,
+  "val": 10,
+  "test": 13
+ },
+ "sha256": {
+  "corpus.txt": "8d951ce8b8d3952d6b1c0643ed2615947060d8e95a1905ce232285f7cc850bff",
+  "test.txt": "ac0812ce76ee13f9b1c39befb6e6006ebc01ad4e0d9b9b4156a8e0be4d9e673c"
+ }
+}
