@@ -25,3 +25,11 @@
 **Résultat.** Voir `propositions/RESULTATS_C9.md`.
 
 **Suite.** Surveiller C8 (`results/c8g_analyse.json`), vérifier avec `scripts/verif_c8_github.py`, puis étapes 4-6.
+
+**Chiffres C9 (mesurés, garde-fous ✔)** :
+| variante | V_gen @4096 | mémoire @4096 | coût perte vs smax |
+|---|---|---|---|
+| smax | 899 | KV 6 144 Ko | — |
+| dlind-elu1 | 3 791 (plat) | état 19 Ko | +0.93 % |
+| dlind-const | 5 513 (plat) | état 0.8 Ko | +1.49 % |
+Détail : propositions/RESULTATS_C9.md. Qualité provisoire (C7) — C8 la remplacera.

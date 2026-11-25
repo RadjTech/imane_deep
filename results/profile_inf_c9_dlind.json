@@ -1,0 +1,53 @@
+{
+ "types": [
+  "dlind",
+  "dlind"
+ ],
+ "ckpt": "results/c7a_dlind-elu1_s101/checkpoint.npz",
+ "equivalence_max_diff": 4.76837158203125e-06,
+ "v_gen_dans_distribution": {
+  "16": {
+   "tok_s": 4090.8,
+   "prefill_tok_s": 4039.3,
+   "kv_a_mi_trajet_octets": 0
+  },
+  "48": {
+   "tok_s": 4208.5,
+   "prefill_tok_s": 4302.2,
+   "kv_a_mi_trajet_octets": 0
+  },
+  "96": {
+   "tok_s": 3610.0,
+   "prefill_tok_s": 3680.3,
+   "kv_a_mi_trajet_octets": 0
+  }
+ },
+ "v_gen_naive_fenetre": null,
+ "scaling_mecanisme": {
+  "256": {
+   "prefill_tok_s": 4123.0,
+   "v_gen_tok_s": 3802.4,
+   "kv_octets": 0
+  },
+  "1024": {
+   "prefill_tok_s": 4112.6,
+   "v_gen_tok_s": 3809.9,
+   "kv_octets": 0
+  },
+  "4096": {
+   "prefill_tok_s": 4120.4,
+   "v_gen_tok_s": 3791.0,
+   "kv_octets": 0
+  }
+ },
+ "memoire": {
+  "poids_octets": 968096,
+  "etat_lin_octets": 19200,
+  "kv_octets": 0
+ },
+ "memoire_kv_4096": {
+  "poids_octets": 968096,
+  "etat_lin_octets": 19200,
+  "kv_octets": 0
+ }
+}
