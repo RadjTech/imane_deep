@@ -1,0 +1,23 @@
+{
+ "variante": "dlind-elu1",
+ "types": [
+  "dlind",
+  "dlind"
+ ],
+ "phi": "elu1",
+ "cles_normalisees": false,
+ "delta": "ref",
+ "seed": 633,
+ "budget": 1800,
+ "eval_every": 100,
+ "pas_eval": 16,
+ "corpus": "fr1m",
+ "params": 242024,
+ "val_entiere_best": 1.8335550402143903,
+ "pas_best": 1800,
+ "val_entiere_min": 1.8335550402143903,
+ "val_entiere_final": 1.8335550402143903,
+ "train_final": 1.8782542943954468,
+ "temps_total_s": 377.3469226360321,
+ "secondes_par_pas": 0.20963717924224007
+}

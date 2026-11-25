@@ -1,0 +1,20 @@
+     0 | train 4.5289 | val 4.5139 | val entière 4.5173 | 12s
+   100 | train 2.5189 | val 2.5379 | val entière 2.5417 | 23s
+   200 | train 2.3765 | val 2.4006 | val entière 2.3927 | 35s
+   300 | train 2.3389 | val 2.3562 | val entière 2.3588 | 46s
+   400 | train 2.3511 | val 2.3192 | val entière 2.3238 | 58s
+   500 | train 2.2874 | val 2.2601 | val entière 2.2619 | 70s
+   600 | train 2.1660 | val 2.1641 | val entière 2.1702 | 81s
+   700 | train 2.1441 | val 2.1116 | val entière 2.1106 | 93s
+   800 | train 2.0065 | val 2.0700 | val entière 2.0502 | 105s
+   900 | train 2.0171 | val 2.0066 | val entière 2.0093 | 116s
+  1000 | train 1.9452 | val 1.9735 | val entière 1.9743 | 128s
+  1100 | train 2.0219 | val 1.9416 | val entière 1.9399 | 140s
+  1200 | train 1.9163 | val 1.9269 | val entière 1.9125 | 151s
+  1300 | train 1.8605 | val 1.8937 | val entière 1.8862 | 163s
+  1400 | train 1.7693 | val 1.8588 | val entière 1.8701 | 175s
+  1500 | train 1.8583 | val 1.8627 | val entière 1.8518 | 186s
+  1600 | train 1.7895 | val 1.8553 | val entière 1.8380 | 198s
+  1700 | train 1.7428 | val 1.8138 | val entière 1.8298 | 210s
+  1800 | train 1.8180 | val 1.8295 | val entière 1.8218 | 222s
+RÉSUMÉ : {"variante": "smax", "types": ["smax", "smax"], "phi": "hist", "cles_normalisees": false, "delta": "ref", "seed": 611, "budget": 1800, "eval_every": 100, "pas_eval": 16, "corpus": "fr1m", "params": 242016, "val_entiere_best": 1.8218425592928746, "pas_best": 1800, "val_entiere_min": 1.8218425592928746, "val_entiere_final": 1.8218425592928746, "train_final": 1.8180142641067505, "temps_total_s": 221.8099296092987, "secondes_par_pas": 0.12322773867183262, "test_final": 1.823661316538571, "test_best": 1.823661316538571, "test_caracteres": 51348, "test_inconnus": 0, "oeuvres_final": 1.887606250990633, "oeuvres_best": 1.887606250990633, "oeuvres_caracteres": 1234422, "oeuvres_inconnus": 140}

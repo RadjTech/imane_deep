@@ -1,0 +1,23 @@
+{
+ "variante": "smax",
+ "types": [
+  "smax",
+  "smax"
+ ],
+ "phi": "hist",
+ "cles_normalisees": false,
+ "delta": "ref",
+ "seed": 622,
+ "budget": 1800,
+ "eval_every": 100,
+ "pas_eval": 16,
+ "corpus": "fr1m",
+ "params": 242016,
+ "val_entiere_best": 1.8252755470429047,
+ "pas_best": 1800,
+ "val_entiere_min": 1.8252755470429047,
+ "val_entiere_final": 1.8252755470429047,
+ "train_final": 1.8266539573669434,
+ "temps_total_s": 305.90151166915894,
+ "secondes_par_pas": 0.16994528426064384
+}

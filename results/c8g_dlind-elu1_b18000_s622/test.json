@@ -1,0 +1,14 @@
+{
+ "variante": "dlind-elu1",
+ "seed": 622,
+ "budget": 18000,
+ "pas_best": 18000,
+ "test_final": 1.393467685910565,
+ "test_best": 1.393467685910565,
+ "test_caracteres": 51348,
+ "test_inconnus": 0,
+ "oeuvres_final": 1.5524521333034165,
+ "oeuvres_best": 1.5524521333034165,
+ "oeuvres_caracteres": 1234422,
+ "oeuvres_inconnus": 140
+}

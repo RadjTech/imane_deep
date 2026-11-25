@@ -1,0 +1,23 @@
+{
+ "variante": "dlind-const",
+ "types": [
+  "dlind",
+  "dlind"
+ ],
+ "phi": "elu1",
+ "cles_normalisees": false,
+ "delta": "const",
+ "seed": 633,
+ "budget": 18000,
+ "eval_every": 600,
+ "pas_eval": 16,
+ "corpus": "fr1m",
+ "params": 242024,
+ "val_entiere_best": 1.4531451939528812,
+ "pas_best": 18000,
+ "val_entiere_min": 1.4531451939528812,
+ "val_entiere_final": 1.4531451939528812,
+ "train_final": 1.279568076133728,
+ "temps_total_s": 2013.3908524513245,
+ "secondes_par_pas": 0.11185504735840691
+}
