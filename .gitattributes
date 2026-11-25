@@ -1,0 +1,4 @@
+# Les corpus sont des données binaires pour le dépôt : interdire tout retouchage
+# des fins de ligne par git (sinon les SHA-256 des manifest.json ne correspondent
+# plus sous Windows).
+data/** -text

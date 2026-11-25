@@ -79,6 +79,13 @@ def main():
     ap.add_argument("--sortie", required=True, help="dossier des textes nettoyés (hors dépôt)")
     ap.add_argument("--max-par-auteur", type=int, default=1_000_000,
                     help="plafond de caractères nettoyés par auteur (contrôle 20 %% du corpus)")
+    ap.add_argument("--anti-repets", action="store_true",
+                    help="dédoublonnage par fenêtre glissante (C8) : tout paragraphe déjà vu "
+                         "textuellement (exact, ≥ 15 car.) ou contenant/recollant une fenêtre de "
+                         "60 caractères déjà présente dans le texte conservé (tous offsets, "
+                         "jonctions comprises) est retiré — corrige les scènes/répliques "
+                         "répétées que le seuil « paragraphe ≥ 60 car. » de preparer_corpus "
+                         "laisse passer (ex. Bel-Ami, Verne)")
     a = ap.parse_args()
     os.makedirs(a.sortie, exist_ok=True)
 
@@ -88,6 +95,96 @@ def main():
     for f in fichiers:
         auteur = f.split("_")[0]
         par_auteur.setdefault(auteur, []).append(f)
+
+    if a.anti_repets:
+        # index de fenêtres de 60 caractères (tous offsets, jonctions comprises) sur le
+        # texte conservé GLOBAL : digests 64 bits (blake2b, déterministe) dans un tableau
+        # numpy trié + lot tampon (mémoire ≈ 8 octets par fenêtre)
+        import hashlib
+        from collections import Counter
+        import numpy as np
+
+        def digests_region(chaine, i, j):
+            """digests 64 bits des fenêtres de 60 car. de chaine[i:j] (tous offsets)."""
+            if j - i < 60:
+                return []
+            return [int.from_bytes(hashlib.blake2b(chaine[k:k + 60].encode("utf-8"),
+                                                   digest_size=8).digest(), "big") & ((1 << 63) - 1)
+                    for k in range(i, j - 59)]
+
+        maitre = np.empty(0, dtype=np.int64)
+        tampon = []
+        vus_paras = set()
+        queue = ""
+        nettoyes = {}
+        stats_rejets = Counter()
+        for f in fichiers:
+            t = unicodedata.normalize("NFC", open(os.path.join(a.brut, f), encoding="utf-8").read())
+            paras = [b.strip() for b in t.split("\n\n") if b.strip()]
+            garde = []
+            for bloc in paras:
+                lignes = [l.strip() for l in bloc.split("\n") if l.strip()]
+                rassemble = ""
+                for l in lignes:
+                    if rassemble.endswith("-"):
+                        rassemble = rassemble[:-1] + l
+                    else:
+                        rassemble = (rassemble + " " + l) if rassemble else l
+                p = rassemble
+                if est_artefact(p):
+                    stats_rejets["artefact"] += 1
+                    continue
+                if a.anti_repets:
+                    cle = re.sub(r"\s+", " ", p).lower()
+                    if len(cle) >= 15:
+                        if cle in vus_paras:
+                            stats_rejets["paragraphe répété"] += 1
+                            continue
+                    region = (queue + "\n\n" + p) if queue else p
+                    nouveaux = digests_region(region, 0, len(region))
+                    en_double = False
+                    for d in nouveaux:
+                        k = np.searchsorted(maitre, d)
+                        if (k < len(maitre) and maitre[k] == d) or d in tampon:
+                            en_double = True
+                            break
+                    if en_double:
+                        stats_rejets["fenêtre répétée"] += 1
+                        continue
+                    if len(cle) >= 15:
+                        vus_paras.add(cle)
+                    if len(tampon) > 400_000:
+                        maitre = np.unique(np.concatenate([maitre, np.array(tampon, dtype=np.int64)]))
+                        tampon = []
+                    tampon.extend(nouveaux)
+                    queue = region[-59:]
+                garde.append(p)
+            nettoyes[f] = garde
+            print(f"  {f}: {len(garde)}/{len(paras)} § gardés ({dict(stats_rejets)})")
+            stats_rejets.clear()
+        if tampon:
+            maitre = np.unique(np.concatenate([maitre, np.array(tampon, dtype=np.int64)]))
+        # répartition proportionnelle du plafond par auteur (identique au mode normal)
+        total = 0
+        for auteur, fs in sorted(par_auteur.items()):
+            longueurs = {f: sum(len(p) + 2 for p in nettoyes[f]) for f in fs}
+            somme = sum(longueurs.values())
+            echelle = min(1.0, a.max_par_auteur / max(somme, 1))
+            for f in fs:
+                budget_f = int(longueurs[f] * echelle)
+                garde, n = [], 0
+                for p in nettoyes[f]:
+                    if n >= budget_f:
+                        break
+                    garde.append(p)
+                    n += len(p) + 2
+                with open(os.path.join(a.sortie, f), "w", encoding="utf-8", newline="\n") as g:
+                    g.write("\n\n".join(garde) + "\n")
+                total += n
+                print(f"{f:55s} {n:>10,} car. ({len(garde)}/{len(nettoyes[f])} § gardés)")
+        print(f"TOTAL nettoyé : {total:,} car. — {len(fichiers)} œuvres, {len(par_auteur)} auteurs "
+              f"| fenêtres indexées : {len(maitre):,}")
+        return
 
     # nettoyage une fois pour toutes, puis répartition PROPORTIONNELLE du plafond
     # par auteur entre ses œuvres (aucune œuvre réduite à zéro)
