@@ -1,0 +1,3 @@
+     0 | train 4.5644 | val 4.5549 | val entière 4.5550 | 224s
+   200 | train 2.3799 | val 2.4310 | val entière 2.4125 | 427s
+   400 | train 2.4040 | val 2.3654 | val entière 2.3802 | 683s
