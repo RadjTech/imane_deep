@@ -1,0 +1,7 @@
+
+## Relève C8-C9-C10 (agent, 25/11/2026)
+
+- **C8 (GitHub Actions, 45/45 runs)** : reçus, intégrité ✔, vérification indépendante IDENTIQUE. Verdicts : C8-V0 confirmée ; C8-V1/V2/V3 **infirmées** (smax devant à 5 400 et 18 000 ; version simple ne suffit plus à 18 000 : +0.065 > +0.05) ; C8-V4 : l'avantage de smax grandit avec le budget (écart non monotone : +0.015 → +0.087 → +0.036). **Meilleur réseau (smax, 18 000 pas) : 0.0064 nat du n-gramme sur la val** (C3b : 0.48). → suite : données (fr5m_v2). Détail : `propositions/RESULTATS_C8.md`.
+- **C9 (coût)** : smax s'effondre à long contexte (899 tok/s @T=4096, KV 6,1 Mo) ; dlind-elu1 plat (3 791, état 19 Ko) ; dlind-const plat et la plus rapide (5 513, état 0.8 Ko) ; coûts en perte vs smax : +0.93 % / +1.49 %. `propositions/RESULTATS_C9.md`, `scripts/profiler_const.py` (double garde-fou 3.8e-06).
+- **C10 (T=256)** : protocole pré-enregistré `propositions/PROTOCOLE_C10.md` + `scripts/c10_controles.py` (réutilise la boucle c8_github, T et lot surchargés) ; 9 runs locaux (3 variantes × seeds 711/722/733, 5 400 pas, 1 536 car./pas) lancés après commit du protocole.
+- **Réparations (étape 1)** : test_oeuvres_v2 (140 ¤), fr5m_v2 (0 copie de 60 car. — `--anti-repets`, cause : répliques répétées ; deux bugs d'index corrigés), `verifier_corpus.py`, `.gitattributes`. Amendements datés dans RAPPORT_DONNEES, RESULTATS_C7, RESEARCH_LOG, HYPOTHESES.
