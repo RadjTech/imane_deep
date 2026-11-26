@@ -1,0 +1,14 @@
+{
+ "variante": "dlind-const",
+ "seed": 733,
+ "budget": 5400,
+ "pas_best": 5400,
+ "test_final": 1.62396255960226,
+ "test_best": 1.62396255960226,
+ "test_caracteres": 252780,
+ "test_inconnus": 0,
+ "oeuvres_final": 1.7255355478421135,
+ "oeuvres_best": 1.7255355478421135,
+ "oeuvres_caracteres": 1234422,
+ "oeuvres_inconnus": 42
+}

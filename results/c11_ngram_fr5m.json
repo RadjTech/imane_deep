@@ -1,0 +1,10 @@
+{
+ "modele": "Kneser-Ney 7-gramme caractere",
+ "d": 0.9,
+ "choisi_sur": "10 % finaux du train",
+ "perte_val_entiere": 1.222,
+ "entrainement_s": 17.02,
+ "train": 4271445,
+ "val": 474605,
+ "vocab": 100
+}
