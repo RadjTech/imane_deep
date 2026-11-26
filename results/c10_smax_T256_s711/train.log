@@ -1,3 +1,29 @@
      0 | train 4.5644 | val 4.5549 | val entière 4.5550 | 224s
    200 | train 2.3799 | val 2.4310 | val entière 2.4125 | 427s
    400 | train 2.4040 | val 2.3654 | val entière 2.3802 | 683s
+   600 | train 2.3887 | val 2.3691 | val entière 2.3707 | 967s
+   800 | train 2.3582 | val 2.3393 | val entière 2.3378 | 1222s
+  1000 | train 2.3388 | val 2.2979 | val entière 2.2919 | 1472s
+  1200 | train 2.2405 | val 2.2019 | val entière 2.2190 | 1757s
+  1400 | train 2.1380 | val 2.1718 | val entière 2.1480 | 1976s
+  1600 | train 2.0840 | val 2.0874 | val entière 2.0846 | 2227s
+  1800 | train 1.9252 | val 2.0112 | val entière 2.0214 | 2521s
+  2000 | train 1.9790 | val 1.9637 | val entière 1.9738 | 2782s
+  2200 | train 1.8985 | val 1.9553 | val entière 1.9554 | 3078s
+  2400 | train 1.9620 | val 1.8964 | val entière 1.9027 | 3297s
+  2600 | train 1.8854 | val 1.8937 | val entière 1.8656 | 3587s
+  2800 | train 1.8220 | val 1.8398 | val entière 1.8311 | 3891s
+  3000 | train 1.7296 | val 1.7910 | val entière 1.8118 | 4158s
+  3200 | train 1.8189 | val 1.7765 | val entière 1.7781 | 4423s
+  3400 | train 1.7331 | val 1.7568 | val entière 1.7552 | 4756s
+  3600 | train 1.8508 | val 1.7602 | val entière 1.7409 | 5055s
+  3800 | train 1.6778 | val 1.7006 | val entière 1.7179 | 5291s
+  4000 | train 1.6382 | val 1.6948 | val entière 1.7049 | 5585s
+  4200 | train 1.6967 | val 1.6760 | val entière 1.6902 | 5852s
+  4400 | train 1.7685 | val 1.6845 | val entière 1.6716 | 6114s
+  4600 | train 1.6111 | val 1.6514 | val entière 1.6609 | 6413s
+  4800 | train 1.6776 | val 1.6661 | val entière 1.6502 | 6786s
+  5000 | train 1.6173 | val 1.6378 | val entière 1.6376 | 7080s
+  5200 | train 1.6138 | val 1.6066 | val entière 1.6356 | 7446s
+  5400 | train 1.6032 | val 1.6511 | val entière 1.6267 | 7693s
+RÉSUMÉ : {"variante": "smax", "types": ["smax", "smax"], "phi": "hist", "cles_normalisees": false, "delta": "ref", "seed": 711, "budget": 5400, "eval_every": 200, "pas_eval": 16, "corpus": "fr1m", "params": 257376, "val_entiere_best": 1.626731384032667, "pas_best": 5400, "val_entiere_min": 1.626731384032667, "val_entiere_final": 1.626731384032667, "train_final": 1.603248953819275, "temps_total_s": 7693.018874406815, "secondes_par_pas": 1.424633124890151, "test_final": 1.6257469005277518, "test_best": 1.6257469005277518, "test_caracteres": 51348, "test_inconnus": 0, "oeuvres_final": 1.7318322704953746, "oeuvres_best": 1.7318322704953746, "oeuvres_caracteres": 1234422, "oeuvres_inconnus": 140}

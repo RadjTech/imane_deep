@@ -18,8 +18,9 @@ import os
 import numpy as np
 
 CONFIGS = ["smax", "dlind-elu1", "dlind-const"]
-SEEDS = [711, 722, 733]
-T95 = {2: 4.303}          # n−1 ddl
+SEEDS = [s for s in ([711, 722, 733, 744, 755, 766])
+          if __import__('os').path.exists(f"results/c10_smax_T256_s{s}/resume.json")]
+T95 = {2: 4.303, 3: 3.182, 4: 2.776, 5: 2.571}   # n−1 ddl
 
 
 def ic(diffs):

@@ -8,7 +8,8 @@ import os
 import numpy as np
 
 CONFIGS = ["smax", "dlind-elu1", "dlind-const"]
-SEEDS = [711, 722, 733]
+SEEDS = [s for s in ([711, 722, 733, 744, 755, 766])
+          if __import__('os').path.exists(f"results/c10_smax_T256_s{s}/resume.json")]
 
 
 def quantile_t(p, ddl):

@@ -62,3 +62,14 @@ Main uniquement ; push à la fin de l'étape ; ne pas toucher aux results/ exist
 `data/corpus_fr.txt`, `data/fr1m`, fr5m_v2 (déjà conforme), scripts C1-C5 et C8, φ par
 défaut ; C6 réservé ; « établi » seulement avec IC tranché et ≥ 3 seeds ; résultats
 négatifs publiés comme les autres ; chiffres jamais inventés.
+
+## Amendement n°1 (2026-11-26, commité AVANT les runs complémentaires)
+
+C10-V1 est **indéterminé** à 3 seeds (+0.0022, IC [−0.0412 ; +0.0457]) — conformément au
+tableau de décision de la mission (« un IC ne tranche pas → ajoute des seeds »), ajout de
+**3 seeds complémentaires : 744, 755, 766**, pour les deux variantes concernées
+(`smax`, `dlind-elu1`) uniquement, mêmes réglages (T = 256, lot 6, 5 400 pas). V2 (déjà
+tranchée : infirmée) et `dlind-const` ne sont pas concernées — ajouter des seeds à une
+comparaison tranchée pour tenter de la retourner serait du shopping de verdict.
+Analyse finale : `analyse_c10.py` relancé sur 6 seeds, puis `verif_c10.py`.
+Écrit avant le premier run d'amendement.
