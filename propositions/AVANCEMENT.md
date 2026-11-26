@@ -48,3 +48,14 @@ avec 0.8 Ko d'état — le compromis qualité/coût reste son argument.
 
 **Suite.** C10 (T=256, 5 400 pas, 3 seeds, protocole commité avant — local) ; puis cycle
 données fr5m_v2. Plafond 72 h de calcul : ~1 h utilisée à ce jour (hors C8 GitHub).
+
+## 26/11 — C10 analyse provisoire + C11 reçu et vérifié ✔
+
+**Fait.**
+- C10 (9 runs T=256) : analyse + vérification IDENTIQUE. V1 **indéterminé** (+0.0022, IC contient 0 — contre +0.0868 tranché à T=96 : l'avantage de smax disparaît à long contexte) ; V2 infirmée de justesse ; V3 descriptif IC disjoints. **Amendement n°1 commité avant les runs complémentaires** (744/755/766, smax+dlind-elu1 uniquement — V2 déjà tranchée, pas de shopping de verdict) ; 6 runs lancés en local (~6 h).
+- C11 (GitHub Actions, 9/9, amendement distant conforme) : vérification indépendante IDENTIQUE. V1/V2 infirmées ; le compteur profite des données à budget fixe, le réseau non → le budget doit croître avec les données. `RESULTATS_C11.md` écrit.
+- Push de tout (rebase sans conflit avant chaque push).
+
+**Résultat.** Qualité : smax devant partout où c'est tranché ; dlind sans désavantage détecté à T=256 ; coût : dlind-const 6× plus rapide à long contexte, état 0.8 Ko.
+
+**Suite.** 1) Fin de l'amendement C10 → conclusion définitive V1 à 6 seeds → push. 2) C11-bis (fr5m_v2, 18 000 pas) = à déclencher sur GitHub par l'utilisateur. 3) Bilan final (étape 6) après C10-amendement.

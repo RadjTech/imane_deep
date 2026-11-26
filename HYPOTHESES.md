@@ -86,3 +86,10 @@
 - **C8-V4 (l'écart évolue avec le budget)** : oui — +0.0216 IC [+0.0098 ; +0.0335] entre les extrémités : l'avantage de smax grandit au total.
 - **C8-V5 (descriptif)** : meilleur réseau (smax, val 1.3466) à 0.0064 nat du n-gramme (1.3402) ; sur le test 1.3577.
 - Détail : `propositions/RESULTATS_C8.md` ; vérification indépendante : `results/c8g_verification.json` (IDENTIQUE).
+
+## C11 — Plus de données fr5m_v2 (GitHub Actions, étiquettes C11-V1..V4)
+- **C11-V1 (dlind-elu1 bat smax sur fr5m_v2/b5400)** : ❌ **infirmée** — +0.0909, IC [+0.0818 ; +0.1000], 3/3. Compatible avec C8-fr1m (+0.0868) : le duel des mécanismes ne dépend pas de la quantité de données à budget égal.
+- **C11-V2 (dlind-const suffit)** : ❌ **infirmée** — +0.0473, borne haute +0.0594 > +0.05.
+- **C11-V3 (descriptif)** : écart réseau↔compteur 0.252 à b5400 (1.4737 vs 1.222) — à budget fixe, le compteur absorbe les données, le réseau non (1.8 époques) ; le budget doit croître avec les données (C8 : 18 000 pas → 0.006 sur fr1m).
+- **C11-V4 (descriptif)** : IC chevauchant avec C8-fr1m/b5400 → aucune interaction données×mécanisme détectée.
+- Détail : `propositions/RESULTATS_C11.md` ; vérification indépendante IDENTIQUE (2.9e-05).

@@ -441,3 +441,25 @@ Différences appariées (dlind-elu1 − smax) : +0.0148 → +0.0868 → +0.0364 
 
 ### Décision
 C8 ✅ terminé. Suite : C10 (T=256, protocole commité avant, local) + préparation du cycle données fr5m_v2. C6 reste réservé.
+
+---
+
+## Cycle C11 — Plus de données (fr5m_v2, GitHub Actions, 9/9 runs) (2026-11-26)
+
+**Statut** : ✅ terminé — C11-V1 INFIRMÉE (smax devant : +0.0909 [+0.0818 ; +0.1000], compatible avec C8-fr1m +0.0868 → les données ne changent pas le duel à budget égal) ; C11-V2 infirmée (version simple +0.0473, borne +0.0594 > +0.05) ; C11-V3 (descriptif) : écart réseau↔compteur **0.252** à b5400 — le compteur profite des données (1.3402→1.222), le réseau sous-budget n'en profite qu'à peine (1.8 époques vs 9.7) ; **le budget doit croître avec les données**.
+
+> Amendement n°1 du prédécesseur : exécution GitHub Actions (9 runs parallèles), protocole
+> inchangé, n-gramme mesuré en job séparé (justifié). Vérification indépendante IDENTIQUE
+> (2.9e-05). Détail : `propositions/RESULTATS_C11.md`.
+
+### Résultats (test_best, 3 seeds)
+
+| smax | dlind-elu1 | dlind-const | n-gramme fr5m_v2 (val) |
+|---|---|---|---|
+| **1.4849 ± 0.0040** | 1.5758 ± 0.0030 | 1.6231 ± 0.0023 | 1.222 |
+
+### Décision
+C11 ✅ terminé. Prochain levier : fr5m_v2 + 18 000 pas (budget proportionné aux données,
+~3× C8-18k, sur GitHub Actions — à déclencher par l'utilisateur). La capacité (d=192)
+n'est pas déclenchée par le tableau de décision. En local : amendement C10 en cours
+(seeds 744/755/766, smax + dlind-elu1, V1 indéterminé à 3 seeds).
