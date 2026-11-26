@@ -38,20 +38,15 @@ alors que smax gagnait de +0.087 à T = 96. V2 reste volontairement à 3 seeds
 ## 3. Lecture honnête
 
 1. **Le résultat central** : à T = 96 et budget égal, smax battait dlind-elu1 de +0.0868
-   (IC sans 0, C8) ; à T = 256, la différence tombe à +0.0022 avec un IC contenant 0 **et
-   disjoint de l'IC de C8**. Le désavantage de qualité de la delta rule **disparaît quand
-   le contexte grandit** — exactement là où C9 montre qu'elle est 4-6× plus rapide et
-   ÷100-7 000 en mémoire. Le compromis qualité/coût se déplace en sa faveur à long
-   contexte. V1 reste officiellement « indéterminé » tant que les seeds complémentaires
-   n'ont pas resserré l'IC.
-1. **Le résultat central** : à T = 96 et budget égal, smax battait dlind-elu1 de +0.0868
    (IC sans 0, C8) ; à T = 256 (6 seeds), la différence est de −0.0029 avec un IC resserré
    [−0.0166 ; +0.0107] **disjoint de l'IC de C8**. Le désavantage de qualité de la delta
    rule **disparaît quand le contexte grandit** — exactement là où C9 montre qu'elle est
    4-6× plus rapide et ÷100-7 000 en mémoire. Le compromis qualité/coût se déplace en sa
-   faveur à long contexte.
-   du seuil) — la version simple ne suffit pas pleinement à ce contexte non plus, même si
-   son écart est 2.7× plus petit qu'à T=96/b5400 (+0.0868).
+   faveur à long contexte. Le verdict pré-enregistré reste « indéterminé » (0 dans l'IC) :
+   dlind-elu1 ne devient pas meilleure, elle cesse d'être moins bonne.
+2. **dlind-const à T=256** : +0.0320 derrière dlind-elu1 (borne +0.0525, de justesse
+   au-delà du seuil) — la version simple ne suffit pas pleinement à ce contexte non plus,
+   même si son écart est 2.7× plus petit qu'à T=96/b5400 (+0.0868).
 3. **V4 (note de prudence)** : les pertes à T=256 ne se comparent pas aux pertes à T=96
    (tâche différente, §3 du protocole). L'écart au n-gramme (+0.28) dit que le modèle
    T=256 à 5 400 pas est encore peu entraîné à **exploiter** les 256 caractères de
@@ -59,7 +54,7 @@ alors que smax gagnait de +0.087 à T = 96. V2 reste volontairement à 3 seeds
    apprendre : 0.006 nat (C8) reste la meilleure position du réseau à ce jour.
 4. **Contre-hypothèses** : mêmes batchs par caractère que C8 (1 536/pas), même
    protocole d'éval entre variantes, test lu une fois, seeds appariés ; le hasard des
-   3 seeds est la limite principale (d'où l'amendement).
+   seeds est couvert par l'amendement (6 seeds pour V1).
 5. **Coût du contexte** : T=256 coûte ~2.3× plus de temps par run que T=96 à caractères
    égaux (attention O(T²) : 256²/96² = 7.1× sur le bloc d'attention, dilué par le reste).
 
