@@ -59,3 +59,12 @@ données fr5m_v2. Plafond 72 h de calcul : ~1 h utilisée à ce jour (hors C8 Gi
 **Résultat.** Qualité : smax devant partout où c'est tranché ; dlind sans désavantage détecté à T=256 ; coût : dlind-const 6× plus rapide à long contexte, état 0.8 Ko.
 
 **Suite.** 1) Fin de l'amendement C10 → conclusion définitive V1 à 6 seeds → push. 2) C11-bis (fr5m_v2, 18 000 pas) = à déclencher sur GitHub par l'utilisateur. 3) Bilan final (étape 6) après C10-amendement.
+
+## 26/11 — C10 conclus + BILAN FINAL écrit ✔ (mission terminée)
+
+**Fait.**
+- Amendement C10 exécuté (6 runs, 15/15 intègres) : V1 final = indéterminé resserré (−0.0029, IC [−0.0166 ; +0.0107], 6 seeds) — disjoint de C8-T96 : l'avantage de smax disparaît à T=256. V2 inchangée (3 seeds, anti-shopping). `RESULTATS_C10.md` conclusion définitive.
+- `BILAN_FINAL.md` écrit (réponses simples, tableau d'hésitation, reste inconnu, ce que je referais autrement).
+- Tout poussé sur main (rebase avant chaque push).
+
+**Suite recommandée** : C11-bis (fr5m_v2 + 18 000 pas) à déclencher sur GitHub Actions par l'utilisateur ; C6 reste réservé.
