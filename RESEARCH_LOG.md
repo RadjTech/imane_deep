@@ -463,3 +463,10 @@ C11 ✅ terminé. Prochain levier : fr5m_v2 + 18 000 pas (budget proportionné a
 ~3× C8-18k, sur GitHub Actions — à déclencher par l'utilisateur). La capacité (d=192)
 n'est pas déclenchée par le tableau de décision. En local : amendement C10 en cours
 (seeds 744/755/766, smax + dlind-elu1, V1 indéterminé à 3 seeds).
+
+**Amendement C10 exécuté (26/11)** : seeds 744/755/766 (smax + dlind-elu1, T=256) — 15/15
+runs intègres, vérification indépendante IDENTIQUE (4.9e-05). **C10-V1 final :
+indéterminé resserré** (−0.0029, IC [−0.0166 ; +0.0107], 6 seeds — disjoint de C8-T96
+[+0.0787 ; +0.0950]) : à T=256, smax et dlind-elu1 sont indiscernables à budget égal,
+alors que smax gagnait de +0.087 à T=96. V2 inchangée (infirmée, 3 seeds, anti-shopping).
+→ `RESULTATS_C10.md` mis à jour (conclusion définitive).

@@ -18,8 +18,10 @@ import os
 import numpy as np
 
 CONFIGS = ["smax", "dlind-elu1", "dlind-const"]
-SEEDS = [s for s in ([711, 722, 733, 744, 755, 766])
-          if __import__('os').path.exists(f"results/c10_smax_T256_s{s}/resume.json")]
+SEEDS_P = [711, 722, 733, 744, 755, 766]
+SEEDS = {c: [s for s in SEEDS_P
+             if __import__('os').path.exists(f"results/c10_{c}_T256_s{s}/resume.json")]
+         for c in CONFIGS}
 T95 = {2: 4.303, 3: 3.182, 4: 2.776, 5: 2.571}   # n−1 ddl
 
 
@@ -33,29 +35,31 @@ def ic(diffs):
 
 
 def main():
-    d = {c: {s: json.load(open(f"results/c10_{c}_T256_s{s}/test.json")) for s in SEEDS}
+    d = {c: {s: json.load(open(f"results/c10_{c}_T256_s{s}/test.json")) for s in SEEDS[c]}
          for c in CONFIGS}
-    val = {c: {s: json.load(open(f"results/c10_{c}_T256_s{s}/resume.json")) for s in SEEDS}
+    val = {c: {s: json.load(open(f"results/c10_{c}_T256_s{s}/resume.json")) for s in SEEDS[c]}
            for c in CONFIGS}
     print("=" * 78)
     print("C10 — T=256, lot 6 (1 536 car./pas), 5 400 pas, 3 seeds — principal : test_best")
     print("=" * 78)
     for c in CONFIGS:
-        tb = np.array([d[c][s]["test_best"] for s in SEEDS])
-        tf = np.array([d[c][s]["test_final"] for s in SEEDS])
-        ve = np.array([val[c][s]["val_entiere_best"] for s in SEEDS])
-        oe = np.array([d[c][s]["oeuvres_best"] for s in SEEDS])
-        pb = [val[c][s]["pas_best"] for s in SEEDS]
+        tb = np.array([d[c][s]["test_best"] for s in SEEDS[c]])
+        tf = np.array([d[c][s]["test_final"] for s in SEEDS[c]])
+        ve = np.array([val[c][s]["val_entiere_best"] for s in SEEDS[c]])
+        oe = np.array([d[c][s]["oeuvres_best"] for s in SEEDS[c]])
+        pb = [val[c][s]["pas_best"] for s in SEEDS[c]]
         print(f"{c:12s} | test_best " + " ".join(f"{x:.4f}" for x in tb)
               + f" | moy {tb.mean():.4f} ± {tb.std(ddof=1):.4f}"
               + f" | test_final {tf.mean():.4f} | val {ve.mean():.4f}"
               + f" | œuvres_v2 {oe.mean():.4f} | pas_best {pb}")
 
-    e1 = [d["dlind-elu1"][s]["test_best"] - d["smax"][s]["test_best"] for s in SEEDS]
+    communs1 = sorted(set(SEEDS["dlind-elu1"]) & set(SEEDS["smax"]))
+    e1 = [d["dlind-elu1"][s]["test_best"] - d["smax"][s]["test_best"] for s in communs1]
     i1 = ic(e1)
     v1v = "confirmée (la delta rule gagne)" if i1[2] < 0 else \
           ("infirmée (la classique gagne)" if i1[1] > 0 else "indéterminé (0 dans l'IC)")
-    e2 = [d["dlind-const"][s]["test_best"] - d["dlind-elu1"][s]["test_best"] for s in SEEDS]
+    communs2 = sorted(set(SEEDS["dlind-const"]) & set(SEEDS["dlind-elu1"]))
+    e2 = [d["dlind-const"][s]["test_best"] - d["dlind-elu1"][s]["test_best"] for s in communs2]
     i2 = ic(e2)
     v2v = "indéterminé (0 dans l'IC)" if (i2[1] <= 0 <= i2[2]) else \
           ("confirmée (borne haute " + f"{i2[2]:+.4f} ≤ +0.05)" if i2[2] <= 0.05 else "infirmée")
@@ -63,8 +67,8 @@ def main():
     c8 = json.load(open("results/c8g_verification.json"))["C8-V2"]["ic"]
     chevauche = not (i1[2] < c8[0] or i1[1] > c8[1])
     ngram = json.load(open("results/c7_ngram_fr1m.json"))["perte_val_entiere"]
-    meilleur_ve = min(CONFIGS, key=lambda c: np.mean([val[c][s]["val_entiere_best"] for s in SEEDS]))
-    m_ve = float(np.mean([val[meilleur_ve][s]["val_entiere_best"] for s in SEEDS]))
+    meilleur_ve = min(CONFIGS, key=lambda c: np.mean([val[c][s]["val_entiere_best"] for s in SEEDS[c]]))
+    m_ve = float(np.mean([val[meilleur_ve][s]["val_entiere_best"] for s in SEEDS[c]]))
 
     print("--- Verdicts pré-enregistrés ---")
     print(f"C10-V1 dlind-elu1 − smax : {i1[0]:+.4f} IC [{i1[1]:+.4f} ; {i1[2]:+.4f}] → {v1v}")
@@ -74,11 +78,12 @@ def main():
     print(f"C10-V4 (descriptif) : val — meilleur {meilleur_ve} {m_ve:.4f} vs n-gramme {ngram:.4f}"
           f" → écart {m_ve - ngram:+.4f}")
 
-    out = {"cycle": "c10", "T": 256, "lot": 6, "budget": 5400, "seeds": SEEDS,
-           "test_best": {c: {str(s): d[c][s]["test_best"] for s in SEEDS} for c in CONFIGS},
-           "test_final": {c: {str(s): d[c][s]["test_final"] for s in SEEDS} for c in CONFIGS},
-           "val_entiere_best": {c: {str(s): val[c][s]["val_entiere_best"] for s in SEEDS} for c in CONFIGS},
-           "oeuvres_best": {c: {str(s): d[c][s]["oeuvres_best"] for s in SEEDS} for c in CONFIGS},
+    out = {"cycle": "c10", "T": 256, "lot": 6, "budget": 5400,
+           "seeds_par_config": SEEDS, "seeds_communs_V1": communs1, "seeds_communs_V2": communs2,
+           "test_best": {c: {str(s): d[c][s]["test_best"] for s in SEEDS[c]} for c in CONFIGS},
+           "test_final": {c: {str(s): d[c][s]["test_final"] for s in SEEDS[c]} for c in CONFIGS},
+           "val_entiere_best": {c: {str(s): val[c][s]["val_entiere_best"] for s in SEEDS[c]} for c in CONFIGS},
+           "oeuvres_best": {c: {str(s): d[c][s]["oeuvres_best"] for s in SEEDS[c]} for c in CONFIGS},
            "verdicts": {
                "C10-V1": {"diff": round(i1[0], 4), "ic": [round(i1[1], 4), round(i1[2], 4)], "verdict": v1v},
                "C10-V2": {"diff": round(i2[0], 4), "ic": [round(i2[1], 4), round(i2[2], 4)], "verdict": v2v},

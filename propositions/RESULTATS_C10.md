@@ -22,16 +22,18 @@ disponible).
 
 | # | Comparaison | Différence | IC 95 % | Verdict |
 |---|---|---|---|---|
-| **C10-V1** | dlind-elu1 − smax @T=256 | +0.0022 | [−0.0412 ; +0.0457] | **indéterminé** (0 dans l'IC — jamais interprété comme une égalité) |
+| **C10-V1** | dlind-elu1 − smax @T=256 (**6 seeds**) | **−0.0029** | [−0.0166 ; +0.0107] | **indéterminé** (0 dans l'IC, resserré ±0.014) — **aucune différence détectable à T=256**, IC disjoint de C8-T96 [+0.0787 ; +0.0950] |
 | **C10-V2** | dlind-const − dlind-elu1 ≤ +0.05 | +0.0320 | [+0.0115 ; +0.0525] | **infirmée** (borne haute +0.0525 > +0.05, de justesse) |
 | **C10-V3** (descriptif) | IC T=256 vs écart C8 T=96 [+0.0787 ; +0.0950] | — | **IC disjoints** | **l'écart a changé avec le contexte** : l'avantage de smax présent à T=96 n'est plus détecté à T=256 |
 | **C10-V4** (descriptif) | val — meilleur réseau vs n-gramme | smax 1.6209 vs 1.3402 | écart +0.2807 | le réseau T=256 est loin derrière le compteur **à ce budget** (voir note) |
 
-**Amendement n°1 (daté, commité avant les runs complémentaires)** : V1 étant indéterminé,
-ajout des seeds 744, 755, 766 pour `smax` et `dlind-elu1` (6 runs, ~6 h) — uniquement pour
-V1 ; V2 reste à 3 seeds (ajouter des seeds à une comparaison déjà tranchée pour tenter de
-la retourner serait du « shopping de verdict », refusé). La conclusion définitive de C10
-sera écrite après ces runs (même protocole, même test, une éval).
+**CONCLUSION DÉFINITIVE (amendement n°1 exécuté — 6 seeds pour V1)** : les seeds
+744/755/766 resserrent l'IC de V1 de ±0.043 à ±0.014 autour de −0.0029 (test_best
+smax 1.6253 ± 0.0100 · dlind-elu1 1.6224 ± 0.0068 · dlind-const 1.6575 ± 0.0020 à 3
+seeds). Verdict inchangé — « indéterminé » — mais désormais porté par un IC étroit et
+disjoint de C8-T96 : à T = 256 et budget égal, smax et dlind-elu1 sont indiscernables,
+alors que smax gagnait de +0.087 à T = 96. V2 reste volontairement à 3 seeds
+(anti-shopping).
 
 ## 3. Lecture honnête
 
@@ -42,7 +44,12 @@ sera écrite après ces runs (même protocole, même test, une éval).
    ÷100-7 000 en mémoire. Le compromis qualité/coût se déplace en sa faveur à long
    contexte. V1 reste officiellement « indéterminé » tant que les seeds complémentaires
    n'ont pas resserré l'IC.
-2. **dlind-const à T=256** : +0.0320 derrière dlind-elu1 (borne +0.0525, de justesse au-delà
+1. **Le résultat central** : à T = 96 et budget égal, smax battait dlind-elu1 de +0.0868
+   (IC sans 0, C8) ; à T = 256 (6 seeds), la différence est de −0.0029 avec un IC resserré
+   [−0.0166 ; +0.0107] **disjoint de l'IC de C8**. Le désavantage de qualité de la delta
+   rule **disparaît quand le contexte grandit** — exactement là où C9 montre qu'elle est
+   4-6× plus rapide et ÷100-7 000 en mémoire. Le compromis qualité/coût se déplace en sa
+   faveur à long contexte.
    du seuil) — la version simple ne suffit pas pleinement à ce contexte non plus, même si
    son écart est 2.7× plus petit qu'à T=96/b5400 (+0.0868).
 3. **V4 (note de prudence)** : les pertes à T=256 ne se comparent pas aux pertes à T=96

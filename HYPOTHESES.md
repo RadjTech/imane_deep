@@ -93,3 +93,4 @@
 - **C11-V3 (descriptif)** : écart réseau↔compteur 0.252 à b5400 (1.4737 vs 1.222) — à budget fixe, le compteur absorbe les données, le réseau non (1.8 époques) ; le budget doit croître avec les données (C8 : 18 000 pas → 0.006 sur fr1m).
 - **C11-V4 (descriptif)** : IC chevauchant avec C8-fr1m/b5400 → aucune interaction données×mécanisme détectée.
 - Détail : `propositions/RESULTATS_C11.md` ; vérification indépendante IDENTIQUE (2.9e-05).
+- **C10-V1 FINAL (6 seeds, amendement n°1)** : indéterminé resserré — −0.0029, IC [−0.0166 ; +0.0107] ; disjoint de C8-T96 → **l'avantage de smax disparaît à T=256** (aucune différence détectable), sans que dlind-elu1 ne devienne meilleure (critère « IC < 0 » non rempli).

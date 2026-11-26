@@ -8,8 +8,10 @@ import os
 import numpy as np
 
 CONFIGS = ["smax", "dlind-elu1", "dlind-const"]
-SEEDS = [s for s in ([711, 722, 733, 744, 755, 766])
-          if __import__('os').path.exists(f"results/c10_smax_T256_s{s}/resume.json")]
+SEEDS_P = [711, 722, 733, 744, 755, 766]
+SEEDS = {c: [s for s in SEEDS_P
+             if __import__('os').path.exists(f"results/c10_{c}_T256_s{s}/resume.json")]
+         for c in CONFIGS}
 
 
 def quantile_t(p, ddl):
@@ -46,11 +48,13 @@ def ic(diffs):
 
 def main():
     tb = {c: {s: json.load(open(f"results/c10_{c}_T256_s{s}/test.json"))["test_best"]
-              for s in SEEDS} for c in CONFIGS}
+              for s in SEEDS[c]} for c in CONFIGS}
     rec = {}
     for nom, (a, b) in {"C10-V1": ("dlind-elu1", "smax"),
                         "C10-V2": ("dlind-const", "dlind-elu1")}.items():
-        rec[nom] = ic([tb[a][s] - tb[b][s] for s in SEEDS])
+        communs = sorted(set(SEEDS[a]) & set(SEEDS[b]))
+        rec[nom] = ic([tb[a][s] - tb[b][s] for s in communs])
+        print(f"  ({nom} : {len(communs)} seeds communs {communs})")
         print(f"{nom} recalculé : {rec[nom][0]:+.4f} IC [{rec[nom][1]:+.4f} ; {rec[nom][2]:+.4f}]")
 
     ref = json.load(open("results/c10_analyse.json"))["verdicts"]
