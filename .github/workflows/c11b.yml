@@ -1,0 +1,162 @@
+# C11-bis : le bon budget sur les bonnes données (fr5m_v2, 18 000 pas) — un ordinateur GitHub par essai
+# Protocole : propositions/PROTOCOLE_C11B.md (pré-enregistré avant tout run).
+# Déclenchement manuel uniquement : onglet Actions → « C11-bis budget long » → Run workflow.
+#   petit-essai : 2 essais de quelques minutes, rien n'est enregistré (à faire en premier).
+#   complet     : les 9 essais du protocole, puis les résultats sont enregistrés sur main par le robot GitHub.
+# Aucun secret, aucune entrée libre : la liste des essais vient du code (scripts/c11b_matrice.py).
+name: C11-bis budget long
+run-name: "C11-bis ${{ inputs.mode }}"
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "petit-essai : 10 min, rien d'enregistre. complet : environ 1 h, resultats enregistres sur main."
+        required: true
+        default: petit-essai
+        type: choice
+        options:
+          - petit-essai
+          - complet
+
+permissions:
+  contents: read
+
+concurrency:
+  group: c11-bis-budget-long
+  cancel-in-progress: false
+
+env:
+  OPENBLAS_NUM_THREADS: "1"
+  OMP_NUM_THREADS: "1"
+  MKL_NUM_THREADS: "1"
+  PYTHONIOENCODING: utf-8
+  PYTHONDONTWRITEBYTECODE: "1"
+
+jobs:
+  preparer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    outputs:
+      matrice: ${{ steps.liste.outputs.matrice }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: pip install "numpy==2.3.5"
+      - name: Garde-fous
+        run: |
+          set -euo pipefail
+          python experiments/hybrid_numpy.py --check-grads
+          python scripts/gardefou_conformite.py
+          python scripts/c3b_controles.py --check
+          for v in smax dlind-elu1 dlind-const; do python scripts/c8_github.py --controle-c7 --variante "$v"; done
+      - name: Corpus fr5m_v2 conforme
+        run: python scripts/verifier_corpus.py --dossier data/fr5m_v2
+      - name: Liste des essais
+        id: liste
+        env:
+          MODE: ${{ inputs.mode }}
+        run: |
+          set -euo pipefail
+          python scripts/c11b_matrice.py "$MODE" >> "$GITHUB_OUTPUT"
+
+  entrainer:
+    needs: preparer
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix: ${{ fromJSON(needs.preparer.outputs.matrice) }}
+    env:
+      VARIANTE: ${{ matrix.variante }}
+      SEED: ${{ matrix.seed }}
+      BUDGET: ${{ matrix.budget }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: pip install "numpy==2.3.5"
+      - name: Entrainement
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG="${{ matrix.tag }}"
+          [[ "$TAG" =~ ^c11b(essai)?_[a-z0-9-]+_s[0-9]+$ ]] || { echo "nom d'essai inattendu"; exit 1; }
+          echo "TAG=$TAG" >> "$GITHUB_ENV"
+          mkdir -p "results/$TAG"
+          python -u scripts/c11b_controles.py --variante "$VARIANTE" --seed "$SEED" --max-steps "$BUDGET" \
+            --out-dir "results/$TAG" 2>&1 | tee train_run.log
+          mv train_run.log "results/$TAG/train.log"
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: ${{ env.TAG }}
+          path: results/${{ env.TAG }}/
+          retention-days: 60
+          if-no-files-found: warn
+
+  rassembler:
+    needs: entrainer
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: pip install "numpy==2.3.5"
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: c11b_*
+          path: artefacts
+      - name: Ranger les essais
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p results artefacts
+          find artefacts -mindepth 1 -maxdepth 1 -type d -exec cp -r {} results/ \;
+          echo "Essais recuperes : $(find results -maxdepth 1 -type d -name 'c11b_*' | wc -l)" | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Analyse pre-enregistree et verification
+        shell: bash
+        run: |
+          set -uo pipefail
+          { python scripts/analyse_c11b.py && python scripts/verif_c11b.py; } > analyse.txt 2>&1 || echo "ANALYSE INCOMPLETE (essai manquant ?)" >> analyse.txt
+          { echo '```'; cat analyse.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: c11b-resultats
+          path: |
+            results/c11b_*/
+            results/c11b_analyse.json
+            propositions/RESULTATS_C11B_brut.md
+            analyse.txt
+            !**/*.npz
+          retention-days: 90
+          if-no-files-found: warn
+      - name: Enregistrer les resultats sur main (mode complet)
+        if: ${{ inputs.mode == 'complet' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if compgen -G "results/c11b_*" > /dev/null; then git add -- results/c11b_*; fi
+          for f in results/c11b_analyse.json propositions/RESULTATS_C11B_brut.md; do if [ -f "$f" ]; then git add -- "$f"; fi; done
+          if git diff --cached --quiet; then echo "Rien a enregistrer"; exit 0; fi
+          git commit -q -m "C11-bis (GitHub Actions) : resultats bruts du budget long sur fr5m_v2"
+          for essai in 1 2 3; do
+            if git pull --rebase origin main && git push origin HEAD:main; then echo "Enregistre sur main"; exit 0; fi
+            sleep 20
+          done
+          echo "Envoi impossible : les resultats restent dans l'artefact c11b-resultats"
+          exit 1
