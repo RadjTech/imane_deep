@@ -68,3 +68,16 @@ données fr5m_v2. Plafond 72 h de calcul : ~1 h utilisée à ce jour (hors C8 Gi
 - Tout poussé sur main (rebase avant chaque push).
 
 **Suite recommandée** : C11-bis (fr5m_v2 + 18 000 pas) à déclencher sur GitHub Actions par l'utilisateur ; C6 reste réservé.
+
+## 27/11 — C11-bis reçu et vérifié ✔ (bouton « complet » déclenché par l'utilisateur)
+
+**Fait.** Pull (robot : 9 runs + analyse) ; réconciliation git après redémarrage (remote
+recréé, fichiers tronqués re-committés, conflit bénin c10_amendement.sh résolu — versions
+identiques) ; intégrité 9/9 ✔ ; vérification indépendante IDENTIQUE (4.4e-05) ;
+`RESULTATS_C11B.md` écrit ; journal/hypothèses à jour.
+
+**Résultat.** Le budget referme le trou avec le compteur : 0.252 → **0.067 nat** (÷3.8) ;
+smax reste devant dlind (+0.058) ; tout le monde finit à son minimum → encore du gain.
+
+**Suite** : fr5m_v2 à 60 000 pas (protocole à écrire avant, ~2 h sur GitHub) — à déclencher
+par l'utilisateur si souhaité ; sinon le programme est clos sur ces conclusions.

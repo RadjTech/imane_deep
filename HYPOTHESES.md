@@ -94,3 +94,10 @@
 - **C11-V4 (descriptif)** : IC chevauchant avec C8-fr1m/b5400 → aucune interaction données×mécanisme détectée.
 - Détail : `propositions/RESULTATS_C11.md` ; vérification indépendante IDENTIQUE (2.9e-05).
 - **C10-V1 FINAL (6 seeds, amendement n°1)** : indéterminé resserré — −0.0029, IC [−0.0166 ; +0.0107] ; disjoint de C8-T96 → **l'avantage de smax disparaît à T=256** (aucune différence détectable), sans que dlind-elu1 ne devienne meilleure (critère « IC < 0 » non rempli).
+
+## C11-bis — Budget long sur fr5m_v2 (GitHub Actions, étiquettes C11B-V1..V4)
+- **C11B-V1 (descriptif)** : le budget referme le trou réseau↔compteur — **+0.0666 nat à 18 000 pas** (contre +0.2517 à 5 400) ; pente ×4 cohérente avec fr1m (0.148 → 0.006).
+- **C11B-V2 (dlind-elu1 bat smax à 18 000 pas sur fr5m_v2)** : ❌ infirmée — +0.0580 [+0.0474 ; +0.0686], 3/3.
+- **C11B-V3 (dlind-const suffit)** : ❌ infirmée — +0.0824 [+0.0784 ; +0.0863].
+- **C11B-V4 (descriptif)** : tout le monde gagne du budget (−0.18 à −0.22) ; pas_best = 18 000 → encore du gain.
+- Détail : `propositions/RESULTATS_C11B.md` ; vérification indépendante IDENTIQUE (4.4e-05).

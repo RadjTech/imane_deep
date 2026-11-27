@@ -470,3 +470,18 @@ indéterminé resserré** (−0.0029, IC [−0.0166 ; +0.0107], 6 seeds — disj
 [+0.0787 ; +0.0950]) : à T=256, smax et dlind-elu1 sont indiscernables à budget égal,
 alors que smax gagnait de +0.087 à T=96. V2 inchangée (infirmée, 3 seeds, anti-shopping).
 → `RESULTATS_C10.md` mis à jour (conclusion définitive).
+
+---
+
+## Cycle C11-bis — Le bon budget sur les bonnes données (GitHub Actions, 9/9 runs) (2026-11-27)
+
+**Statut** : ✅ terminé — C11B-V1 : le budget referme le trou avec le compteur (**0.252 → 0.067 nat**, ÷3.8 quand budget ×3.3 — même pente que fr1m) ; C11B-V2 infirmée (smax +0.0580 [+0.0474 ; +0.0686]) ; C11B-V3 infirmée (+0.0824) ; C11B-V4 : tous gagnent du budget (−0.18/−0.22), pas_best = 18 000 (encore du gain).
+
+> Protocole commité avant les runs (c6a4d9c) ; vérification indépendante IDENTIQUE (4.4e-05) ;
+> réparation préalable de fichiers locaux tronqués par une restauration (be0a5bf).
+> Détail : `propositions/RESULTATS_C11B.md`.
+
+### Décision
+C11-bis ✅ terminé. Levier suivant mesuré par la pente : fr5m_v2 à 60 000 pas (protocole à
+écrire avant) devrait fermer le trou avec le compteur. Le duel des mécanismes est clos :
+smax pour la qualité, dlind-const pour le coût à long contexte.

@@ -47,7 +47,7 @@ l'adressage par contenu sert un peu quand l'entraînement est long ou riche.
 | **`dlind-elu1`** — 18 000 pas | 1.3942 | **4,0** |
 | **`dlind-const`** — 18 000 pas | 1.4588 | **4,3** |
 | *rappel C7 (1 800 pas) : smax* | *1.8223* | *6,2* |
-| *fr5m_v2 à budget égal (autre corpus, incomparable) : smax / compteur* | *1.4849 / 1.2220* | *4,4 / 3,4* |
+| *fr5m_v2 à 18 000 pas (autre corpus, incomparable) : smax / compteur* | *1.3008 / 1.2220* | **3,67 / 3,39** |
 
 Le chemin parcouru : 6,2 → 3,9 lettres d'hésitation (attention) sur fr1m en passant de
 1 800 à 18 000 pas ; à 18 000 pas le meilleur réseau est à **0.006 nat du compteur** sur
@@ -58,8 +58,9 @@ données**.
 
 ## 5. Qu'est-ce qui reste inconnu ?
 
-- **fr5m_v2 + 18 000 pas** (budget proportionné aux données, ~3× C8-18k sur GitHub) —
-  le levier le plus prometteur d'après C8+C11 ; non mesuré.
+- **fr5m_v2 + 18 000 pas : MESURÉ (C11-bis)** — le budget referme le trou avec le
+  compteur (0.252 → 0.067 nat, pente ×4 cohérente avec fr1m). Suite mesurable : 60 000
+  pas (~1,7 h/run sur GitHub) — non lancé, protocole à écrire avant.
 - **T = 256 (ou plus) à budget long** : C10 a montré le rapprochement à 5 400 pas ;
   à 18 000, rien n'est mesuré.
 - **Capacité d = 192** : non déclenchée par le tableau de décision, non mesurée.
