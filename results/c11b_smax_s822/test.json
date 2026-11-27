@@ -1,0 +1,14 @@
+{
+ "variante": "smax",
+ "seed": 822,
+ "budget": 18000,
+ "pas_best": 18000,
+ "test_final": 1.3028132928385514,
+ "test_best": 1.3028132928385514,
+ "test_caracteres": 252780,
+ "test_inconnus": 0,
+ "oeuvres_final": 1.457467696374032,
+ "oeuvres_best": 1.457467696374032,
+ "oeuvres_caracteres": 1234422,
+ "oeuvres_inconnus": 42
+}
